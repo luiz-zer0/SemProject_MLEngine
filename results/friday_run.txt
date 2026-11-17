@@ -1,30 +1,13 @@
-SYNTHETIC ONLY - Friday demo run
-Base main: 346cb30
-Command: python -m unittest discover -s tests -q
-python : C:\Users\louis\AppData\Local\Programs\Python\Python312\Lib\si
-te-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: 
-Using `httpx` with `starlette.testclient` is deprecated; install 
-`httpx2` instead.
-At line:1 char:158
-+ ...  --version; python -m unittest discover -s tests -q > 
-work/friday_tes ...
-+                 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (C:\Users\louis\...ttpx2` 
-    instead.:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-  from starlette.testclient import TestClient as TestClient  # noqa
-----------------------------------------------------------------------
-Ran 37 tests in 1.390s
-
-OK
-Command: python -m scripts.rebuild_nlp_index
-Found reports indexed: 4
-Vocabulary terms: 31
-Index is in memory only; restart or call replace_inventory after source changes.
-Command: python scripts/capture_day3_evidence.py
-Exit: 0; frozen evidence and HTTP behavior assertions passed
-Command: python -m scripts.demo_day3
-Exit: 0; full JSON console response reproduced in friday_demo_evidence.json
-Python: 3.12.6
+SYNTHETIC ONLY; not campus accuracy
+Base main: 346cb30; Python 3.12.6
+python -m unittest discover -s tests -q
+Ran 37 tests in 1.390s; OK
+Observed warning: Starlette TestClient/httpx deprecation; suite passed
+python scripts/capture_day3_evidence.py
+Exit 0: frozen Day 2 evidence and HTTP/candidate/non-approval assertions passed
+python -m scripts.rebuild_nlp_index
+4 found reports indexed; 31 vocabulary terms; memory-only index
+python -m scripts.demo_day3
+Exit 0: report-to-ranking-to-evidence-to-advisory-staff-action pipeline
+Protected raw files, matching_system and baseline result diffs empty
+Fresh isolated setup and Android connectivity not tested
