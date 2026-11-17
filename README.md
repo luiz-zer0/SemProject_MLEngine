@@ -19,6 +19,8 @@ NLP retrieves candidates from item names and descriptions. The matching agent co
 | Matching and staff-workflow agents | Implemented as separately testable Python modules and connected to a local synthetic API preview; not connected to a mobile app. |
 | Data for development | 46 synthetic campus reports, 32 designed pairs and three additional synthetic queries. No verified real lost/found pairs are available here. |
 | Real-case evaluation | Pending permitted reports and independently reviewed same-item links. No campus matching accuracy is claimed. |
+| Deliverable 3 mobile demonstration | Pending. This repository has no Android client; the companion `AI-project/android` is currently a starter screen without API integration. |
+| Deliverable 3 final notebook | Pending. `notebooks/LogisticRegression_Base.ipynb` is the earlier coursework baseline, not the final NLP notebook. |
 
 The currently reviewed facts are limited to the fields on `TextReport`. Category disagreement is **review evidence**, not an automatic exclusion; different locations can still describe the same item. Missing facts are unknown. The rules are explicit constants with stable IDs; a separately managed knowledge-base file remains future work. The local ranker-to-agents-to-API path is integrated.
 
@@ -101,7 +103,7 @@ A found-only dataset or fictional lost claims can exercise ingestion but cannot 
 
 ## Earlier CAT 2 classification experiment
 
-The [coursework notebook](notebooks/LogisticRegression_Base.ipynb) remains available as the assessed Logistic Regression baseline. It uses 13,713 Delhi Metro **found-item** records for cleaning and exploratory analysis, then creates 120 fictional lost claims and 360 constructed pairs for an offline classification exercise. Its held-out precision 0.971, recall 0.944 and F1 0.958 describe those constructed labels only. The Delhi source has no verified lost/found links or handovers, and different source rows are not proof of different physical items.
+The [coursework notebook](notebooks/LogisticRegression_Base.ipynb) remains available as the assessed Logistic Regression baseline. It is not part of the current API pipeline or the planned Deliverable 3 demo. It uses 13,713 Delhi Metro **found-item** records for cleaning and exploratory analysis, then creates 120 fictional lost claims and 360 constructed pairs for an offline classification exercise. Its held-out precision 0.971, recall 0.944 and F1 0.958 describe those constructed labels only. The Delhi source has no verified lost/found links or handovers, and different source rows are not proof of different physical items.
 
 The older campus classifier uses 32 designed pairs and historically maps `plausible` to class 0, with an exclusion sensitivity check. That assumption belongs to the coursework experiment; the NLP prototype keeps uncertain cases separate. Neither experiment measures performance on verified campus incidents.
 
@@ -109,4 +111,6 @@ To reproduce the Delhi notebook, obtain the raw CSV as described in [dataset sou
 
 ## Next integration steps
 
-Review the fixture labels and demo errors, validate the intake contract with permitted real reports and verified pairs, and test the full path before a field pilot. Integrate with a mobile client only after server persistence, authentication and data handling are stable. Keep every output framed as a possible-match suggestion requiring staff verification. See [team contributions](docs/contributions.md) for the repository history.
+Review the fixture labels and demo errors, validate the intake contract with permitted real reports and verified pairs, and test the full path before a field pilot. For Deliverable 3, a local mobile client can call the synthetic preview with invented sample inputs; real-report use still requires persistence, authentication and reviewed data handling. Keep every output framed as a possible-match suggestion requiring staff verification. See [team contributions](docs/contributions.md) for the repository history.
+
+The [Deliverable 3 readiness review and dated team plan](docs/deliverable3_readiness.md) covers the required mobile demo and final notebook. CLIP is outside the current text-only engine: the companion repository has an unimplemented image-encoder placeholder, no evaluated CLIP result, and no paired image dataset. It is not a dependency for this deliverable.
