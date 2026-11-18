@@ -1,0 +1,177 @@
+{
+  "version": "chala-observed-2026-11-12",
+  "source_url": "https://chala.strathmore.edu/lost-items/create",
+  "observed_date": "2026-11-12",
+  "id_note": "IDs below are proposed project identifiers, not Chala backend IDs.",
+  "categories": [
+    {
+      "id": "electronics",
+      "source_label": "Electronics",
+      "display_label": "Electronics"
+    },
+    {
+      "id": "clothing",
+      "source_label": "Clothing",
+      "display_label": "Clothing"
+    },
+    {
+      "id": "documents",
+      "source_label": "Documents",
+      "display_label": "Documents"
+    },
+    {
+      "id": "bags",
+      "source_label": "Bags",
+      "display_label": "Bags"
+    },
+    {
+      "id": "keys",
+      "source_label": "Keys",
+      "display_label": "Keys"
+    },
+    {
+      "id": "jewelry",
+      "source_label": "Jewelry",
+      "display_label": "Jewelry"
+    },
+    {
+      "id": "stationery",
+      "source_label": "Stationery",
+      "display_label": "Stationery"
+    },
+    {
+      "id": "accessories",
+      "source_label": "Accessories",
+      "display_label": "Accessories"
+    },
+    {
+      "id": "metal_water_bottle",
+      "source_label": "Metalic water bottle",
+      "display_label": "Metal water bottle"
+    },
+    {
+      "id": "umbrella",
+      "source_label": "Umbrella",
+      "display_label": "Umbrella"
+    },
+    {
+      "id": "plastic_water_bottle",
+      "source_label": "plastic water bottle",
+      "display_label": "Plastic water bottle"
+    },
+    {
+      "id": "spectacles",
+      "source_label": "Spectacles.",
+      "display_label": "Spectacles"
+    },
+    {
+      "id": "money",
+      "source_label": "Money",
+      "display_label": "Money"
+    },
+    {
+      "id": "wallet",
+      "source_label": "Wallet",
+      "display_label": "Wallet"
+    },
+    {
+      "id": "spectacle_cases",
+      "source_label": "SPECTACLE CASES",
+      "display_label": "Spectacle cases"
+    },
+    {
+      "id": "pencil_pouch",
+      "source_label": "PENCIL POUCH",
+      "display_label": "Pencil pouch"
+    },
+    {
+      "id": "shoes",
+      "source_label": "Shoes",
+      "display_label": "Shoes"
+    },
+    {
+      "id": "mugs",
+      "source_label": "MUGs",
+      "display_label": "Mugs"
+    }
+  ],
+  "locations": [
+    {
+      "id": "sbs_building",
+      "source_label": "SBS Building",
+      "display_label": "SBS Building"
+    },
+    {
+      "id": "admin_block",
+      "source_label": "Admin Block",
+      "display_label": "Admin Block"
+    },
+    {
+      "id": "cafeteria",
+      "source_label": "Cafeteria",
+      "display_label": "Cafeteria"
+    },
+    {
+      "id": "sports_complex",
+      "source_label": "Sports Complex",
+      "display_label": "Sports Complex"
+    },
+    {
+      "id": "medical_centre",
+      "source_label": "Medical Centre",
+      "display_label": "Medical Centre"
+    },
+    {
+      "id": "strathmore_law_school",
+      "source_label": "Strathmore Law School",
+      "display_label": "Strathmore Law School"
+    },
+    {
+      "id": "strathmore_energy_research_centre_serc",
+      "source_label": "Strathmore Energy Research Centre (SERC)",
+      "display_label": "Strathmore Energy Research Centre (SERC)"
+    },
+    {
+      "id": "msb",
+      "source_label": "MSB",
+      "display_label": "MSB"
+    },
+    {
+      "id": "msb_1",
+      "source_label": "MSB 1",
+      "display_label": "MSB 1"
+    },
+    {
+      "id": "aberdere_lab",
+      "source_label": "Aberdere lab",
+      "display_label": "Aberdere lab"
+    },
+    {
+      "id": "microsoft_auditorium",
+      "source_label": "Microsoft Auditorium",
+      "display_label": "Microsoft Auditorium"
+    },
+    {
+      "id": "main_auditorium",
+      "source_label": "Main Auditorium",
+      "display_label": "Main Auditorium"
+    }
+  ],
+  "id_types": [
+    {
+      "id": "student_id",
+      "source_label": "Student ID",
+      "display_label": "Student ID"
+    },
+    {
+      "id": "staff_id",
+      "source_label": "Staff ID",
+      "display_label": "Staff ID"
+    },
+    {
+      "id": "national_id",
+      "source_label": "National ID",
+      "display_label": "National ID"
+    }
+  ]
+}

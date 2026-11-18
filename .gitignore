@@ -11,3 +11,11 @@ data/processed/delhi_labelled_pairs.csv
 data/processed/delhi_modelling_pairs.csv
 data/processed/delhi_split.json
 results/delhi_experiment/
+
+artifacts/
+.venv-service/
+service-tests.log
+.env
+*service-account*.json
+firebase/*debug.log
+firebase/node_modules/

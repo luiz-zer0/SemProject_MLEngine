@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function member() {
+      return request.auth != null && request.auth.token.email_verified == true
+        && request.auth.token.email.matches('.*@strathmore[.]edu$');
+    }
+    function staff() {
+      return member() && request.auth.token.get('role', 'student') in ['office_staff', 'admin'];
+    }
+    // All writes go through FastAPI, whose Admin SDK bypasses these rules.
+    // Roles are custom claims set only by a trusted administrator.
+    match /{collection}/{id} {
+      allow read: if collection in ['lost_reports', 'found_reports', 'matches', 'claims', 'notifications']
+        && member() && (resource.data.owner_uid == request.auth.uid || staff());
+      allow write: if false;
+    }
+    match /audit_logs/{id} { allow read: if staff(); }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

@@ -1,0 +1,21 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function member() {
+      return request.auth != null && request.auth.token.email_verified == true
+        && request.auth.token.email.matches('.*@strathmore[.]edu$');
+    }
+    function staff() {
+      return member() && request.auth.token.get('role', 'student') in ['office_staff', 'admin'];
+    }
+    match /report_photos/{uid}/{requestId}/photo {
+      allow read: if member() && (request.auth.uid == uid || staff());
+      allow create: if resource == null && member() && request.auth.uid == uid
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp)');
+      // Immutable after upload; never expose bearer download URLs in report records.
+      allow update, delete: if false;
+    }
+    match /{path=**} { allow read, write: if false; }
+  }
+}

@@ -52,7 +52,7 @@ SemProject_MLEngine/
 ├── results/
 │   ├── figures/                 # aggregate Delhi and older campus charts
 │   ├── delhi_experiment/        # local, ignored row-level model output
-│   └── ml/                      # older campus predictions and metrics
+│   └── campus_baseline/         # older campus predictions and metrics
 ├── tests/                       # focused checks of important behavior
 └── docs/dataset_sources.md
 ```
@@ -103,7 +103,7 @@ All candidate pairs belonging to one lost report remain in the same split. This 
 
 ## Measured results and example
 
-The current Delhi-derived held-out check has **108 constructed pairs**. Its precision is **0.971**, recall **0.944**, and F1 **0.958**, with confusion matrix `[[71, 1], [2, 34]]`. These numbers only measure the generated-pair exercise. The older campus exercise's eight-pair test gave precision 1.00, recall 0.75 and F1 0.857; its saved file is [`validation_metrics.json`](results/ml/validation_metrics.json). Neither result estimates real-campus accuracy.
+The current Delhi-derived held-out check has **108 constructed pairs**. Its precision is **0.971**, recall **0.944**, and F1 **0.958**, with confusion matrix `[[71, 1], [2, 34]]`. These numbers only measure the generated-pair exercise. The older campus exercise's eight-pair test gave precision 1.00, recall 0.75 and F1 0.857; its saved file is [`validation_metrics.json`](results/campus_baseline/validation_metrics.json). Neither result estimates real-campus accuracy.
 
 The notebook displays sample predictions by report ID so that potentially sensitive source descriptions do not enter public outputs. Staff must inspect any suggested pair and verify ownership privately.
 
@@ -138,3 +138,7 @@ Earlier work by team members is in the companion `AI-project` history. See [team
 5. Explain why the split and validation are grouped by lost report.
 6. Show the held-out confusion matrix and example predictions, making clear the labels were constructed.
 7. State the limitations and how the team would validate with verified real handovers before app integration.
+
+## Mobile Firebase integration
+
+See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) for local emulators, the authenticated FastAPI service, durable matching worker, Android configuration and validation commands. No CLIP or image inference is used.

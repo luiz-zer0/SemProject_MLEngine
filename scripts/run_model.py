@@ -9,14 +9,14 @@ def main():
     pair_summary = build()
     split()
     result = run_experiment(ROOT / "data/processed/modelling_pairs.csv",
-                            ROOT / "data/processed/campus_split.json", ROOT / "results/ml")
+                            ROOT / "data/processed/campus_split.json", ROOT / "results/campus_baseline")
     test = result["held_out_test"]
     print(f"Prepared {pair_summary['rows']} labelled report pairs.")
     print(f"Development: {result['split']['development_pairs']} pairs; "
           f"held-out test: {result['split']['test_pairs']} pairs.")
     print(f"Held-out precision: {test['precision']:.2f}; "
           f"recall: {test['recall']:.2f}; F1: {test['f1']:.2f}")
-    print("Detailed results: results/ml/validation_metrics.json")
+    print("Detailed results: results/campus_baseline/validation_metrics.json")
 
 
 if __name__ == "__main__":
