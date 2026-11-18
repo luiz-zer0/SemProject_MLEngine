@@ -34,20 +34,25 @@ def process_job(client, ref, matcher):
         candidates = client.collection(f"{opposite}_reports").limit(201).stream()
         candidates = [item.to_dict() for item in candidates]
         if len(candidates) > 200:
-            raise ValueError("Candidate limit exceeded; refine retrieval before processing this category")
+            raise ValueError("Candidate limit exceeded; refine retrieval before processing")
         results = []
         if source["status"] == "active":
-            for candidate in candidates:
-                if candidate["status"] != "active" or candidate["owner_uid"] == source["owner_uid"]:
-                    continue
-                lost, found = (source, candidate) if opposite == "found" else (candidate, source)
-                evidence = matcher.recommend(lost, [found])
-                if not evidence:
-                    continue
+            active = [candidate for candidate in candidates
+                      if candidate["status"] == "active" and candidate["owner_uid"] != source["owner_uid"]]
+            pairs = []
+            if opposite == "found":
+                found_by_id = {row["id"]: row for row in active}
+                for evidence in matcher.recommend(source, active):
+                    pairs.append((source, found_by_id[evidence["found_report_id"]], evidence))
+            else:
+                for lost in active:
+                    for evidence in matcher.recommend(lost, [source]):
+                        pairs.append((lost, source, evidence))
+            for lost, found, evidence in pairs:
                 match_id = f"{lost['id']}_{found['id']}"
                 results.append({"id": match_id, "lost_id": lost["id"], "found_id": found["id"],
-                                "owner_uid": lost["owner_uid"], "score": evidence[0]["text_similarity"],
-                                "explanation": evidence[0]["explanation"], "workflow": evidence[0]["workflow"],
+                                "owner_uid": lost["owner_uid"], "score": evidence["text_similarity"],
+                                "explanation": evidence["explanation"], "workflow": evidence["workflow"],
                                 "item_name": found["item_name"], "model_version": matcher.version,
                                 "status": "suggested", "review_required": True})
 
