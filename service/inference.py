@@ -33,3 +33,19 @@ class Matcher:
         features = pair_features(as_report(lost), as_report(found))
         table = pd.DataFrame([features], columns=list(FEATURE_NAMES))
         return float(self.classifier.predict_proba(table)[0, 1])
+
+
+class TfidfMatcher:
+    """Use the shared NLP and knowledge-agent pipeline for mobile suggestions."""
+    version = "tfidf-knowledge-agents-v1"
+
+    def recommend(self, lost, found_rows):
+        from matching_system.nlp_retrieval import TextReport
+        from matching_system.pipeline import MatchingPipeline
+
+        def convert(row):
+            return TextReport(row["id"], row["report_type"], row.get("description", ""),
+                              item_name=row.get("item_name", ""), category_id=row.get("category_id"),
+                              location_id=row.get("location_id"), event_date=row.get("event_date"))
+
+        return MatchingPipeline([convert(row) for row in found_rows]).recommend(convert(lost), limit=5)["matches"]

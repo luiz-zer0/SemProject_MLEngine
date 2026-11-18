@@ -7,7 +7,7 @@ import uuid
 from firebase_admin import messaging
 from google.cloud import firestore
 
-from .inference import Matcher
+from .inference import TfidfMatcher
 from .runtime import db, firebase_app
 
 log = logging.getLogger(__name__)
@@ -31,8 +31,7 @@ def process_job(client, ref, matcher):
     try:
         source = source_ref.get().to_dict()
         opposite = "found" if job["report_type"] == "lost" else "lost"
-        candidates = client.collection(f"{opposite}_reports").where(
-            filter=firestore.FieldFilter("category_id", "==", source["category_id"])).limit(201).stream()
+        candidates = client.collection(f"{opposite}_reports").limit(201).stream()
         candidates = [item.to_dict() for item in candidates]
         if len(candidates) > 200:
             raise ValueError("Candidate limit exceeded; refine retrieval before processing this category")
@@ -42,9 +41,13 @@ def process_job(client, ref, matcher):
                 if candidate["status"] != "active" or candidate["owner_uid"] == source["owner_uid"]:
                     continue
                 lost, found = (source, candidate) if opposite == "found" else (candidate, source)
+                evidence = matcher.recommend(lost, [found])
+                if not evidence:
+                    continue
                 match_id = f"{lost['id']}_{found['id']}"
                 results.append({"id": match_id, "lost_id": lost["id"], "found_id": found["id"],
-                                "owner_uid": lost["owner_uid"], "score": matcher.score(lost, found),
+                                "owner_uid": lost["owner_uid"], "score": evidence[0]["text_similarity"],
+                                "explanation": evidence[0]["explanation"], "workflow": evidence[0]["workflow"],
                                 "item_name": found["item_name"], "model_version": matcher.version,
                                 "status": "suggested", "review_required": True})
 
@@ -80,7 +83,7 @@ def process_job(client, ref, matcher):
 
 def main():
     logging.basicConfig(level=logging.INFO)
-    matcher = Matcher(os.environ.get("MODEL_PATH", "artifacts/mobile_model.joblib"))
+    matcher = TfidfMatcher()
     client = db()
     while True:
         for status in ("pending", "running"):
