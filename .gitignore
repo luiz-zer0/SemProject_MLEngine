@@ -19,3 +19,4 @@ service-tests.log
 *service-account*.json
 firebase/*debug.log
 firebase/node_modules/
+firebase/.firebase/
