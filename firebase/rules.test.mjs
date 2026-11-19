@@ -12,12 +12,14 @@ try {
   const owner = env.authenticatedContext('owner', {email: 'owner@strathmore.edu', email_verified: true});
   const other = env.authenticatedContext('other', {email: 'other@strathmore.edu', email_verified: true});
   const staff = env.authenticatedContext('staff', {email: 'staff@strathmore.edu', email_verified: true, role: 'office_staff'});
+  const admin = env.authenticatedContext('admin', {email: 'admin@strathmore.edu', email_verified: true, role: 'admin'});
   const anonymous = env.unauthenticatedContext();
   await env.withSecurityRulesDisabled(async context => {
     await setDoc(doc(context.firestore(), 'lost_reports/rules-test'), {owner_uid: 'owner', status: 'active'});
   });
   await assertSucceeds(getDoc(doc(owner.firestore(), 'lost_reports/rules-test')));
   await assertSucceeds(getDoc(doc(staff.firestore(), 'lost_reports/rules-test')));
+  await assertFails(getDoc(doc(admin.firestore(), 'lost_reports/rules-test')));
   await assertFails(getDoc(doc(other.firestore(), 'lost_reports/rules-test')));
   await assertFails(getDoc(doc(anonymous.firestore(), 'lost_reports/rules-test')));
   await assertFails(setDoc(doc(owner.firestore(), 'users/owner'), {role: 'admin'}));
@@ -26,6 +28,7 @@ try {
   const path = `report_photos/owner/${Date.now()}/photo`;
   await assertSucceeds(uploadBytes(ref(owner.storage(), path), new Uint8Array([1, 2, 3]), {contentType: 'image/png'}));
   await assertSucceeds(getBytes(ref(staff.storage(), path)));
+  await assertFails(getBytes(ref(admin.storage(), path)));
   await assertFails(getBytes(ref(other.storage(), path)));
   await assertFails(uploadBytes(ref(owner.storage(), path), new Uint8Array([4]), {contentType: 'image/png'}));
   await assertFails(uploadBytes(ref(owner.storage(), `report_photos/owner/${Date.now()}bad/photo`), new Uint8Array([1]), {contentType: 'text/plain'}));
