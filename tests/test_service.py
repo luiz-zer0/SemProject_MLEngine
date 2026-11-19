@@ -29,6 +29,9 @@ def test_validation_and_role_boundaries():
         assert client.post("/v1/reports", json=payload(event_date="2999-01-01")).status_code == 422
         assert client.post("/v1/reports", json=payload(photo_reference="report_photos/other/x/photo")).status_code == 422
         assert client.post("/v1/claims/x/decision", json={"status": "approved"}).status_code == 403
+        assert client.get("/v1/admin/category-rules").status_code == 403
+        assert client.get("/v1/admin/audit").status_code == 403
+        assert client.post("/v1/reports", json=payload(report_type="found", category_id="wallet")).status_code == 422
     finally:
         app.dependency_overrides.clear()
 
@@ -40,5 +43,7 @@ def test_admin_cannot_act_as_office_staff():
         client = TestClient(app)
         assert client.post("/v1/reports", json=payload(report_type="found")).status_code == 403
         assert client.post("/v1/claims/x/decision", json={"status": "approved"}).status_code == 403
+        assert client.put("/v1/admin/category-rules/unknown", json={"retention_days": 30}).status_code == 404
+        assert client.put("/v1/admin/category-rules/wallet", json={"retention_days": 30}).status_code == 422
     finally:
         app.dependency_overrides.clear()

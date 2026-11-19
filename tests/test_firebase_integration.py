@@ -11,7 +11,7 @@ from firebase_admin import auth
 from service.api import app
 from service.runtime import db, firebase_app
 from service.worker import process_job
-from service.inference import Matcher
+from service.inference import TfidfMatcher
 
 pytestmark = pytest.mark.skipif(os.environ.get("RUN_FIREBASE_INTEGRATION") != "1", reason="Local emulators required")
 
@@ -29,7 +29,7 @@ def login(role="student", verified=True):
 
 def test_end_to_end_persistence_matching_claims_and_access():
     client = TestClient(app)
-    student, stranger, office = login(), login(), login("office_staff")
+    student, stranger, office, admin = login(), login(), login("office_staff"), login("admin")
     assert client.get("/v1/me", headers=login(verified=False)).status_code == 403
     body = {"request_id": str(uuid4()), "report_type": "lost", "item_name": "Blue bottle",
             "description": "blue metal water bottle scratched lid", "category_id": "metal_water_bottle",
@@ -46,10 +46,23 @@ def test_end_to_end_persistence_matching_claims_and_access():
     found = client.post("/v1/reports", json=found_body, headers=office)
     assert found.status_code == 201, found.text
     found_id = found.json()["id"]
+    sensitive = {**found_body, "request_id": str(uuid4()), "category_id": "wallet",
+                 "item_name": "Wallet", "description": "Brown wallet", "sealed": True,
+                 "custody_location": "Locked office cabinet"}
+    assert client.post("/v1/reports", json=sensitive, headers=office).status_code == 201
+    assert client.post("/v1/reports", json={**sensitive, "request_id": str(uuid4()), "sealed": False}, headers=office).status_code == 422
+    assert client.post("/v1/reports", json={**found_body, "request_id": str(uuid4())}, headers=admin).status_code == 403
+    assert client.get("/v1/admin/category-rules", headers=office).status_code == 403
+    assert client.put("/v1/admin/category-rules/wallet", json={"retention_days": 30,
+        "restricted": True, "requires_seal": True}, headers=admin).status_code == 200
+    assert client.get("/v1/admin/category-rules", headers=admin).json()["rules"]
+    assert client.get("/v1/admin/audit", headers=admin).json()["events"]
+    assert client.get("/v1/office/unclaimed", headers=admin).status_code == 403
+    assert client.get("/v1/office/unclaimed", headers=office).status_code == 200
     store = db()
 
     class BrokenModel:
-        def score(self, *args):
+        def recommend(self, *args):
             raise RuntimeError("Injected model outage")
         version = "broken"
 
@@ -61,22 +74,29 @@ def test_end_to_end_persistence_matching_claims_and_access():
     assert store.collection("lost_reports").document(lost_id).get().exists
     assert job.get().to_dict()["status"] == "pending"
     job.update({"lease_until": 0})
-    process_job(store, job, Matcher("artifacts/mobile_model.joblib"))
+    process_job(store, job, TfidfMatcher())
     result = client.get(f"/v1/reports/lost/{lost_id}/matches", headers=student).json()
     assert result["matching_status"] == "complete"
     match = next(row for row in result["matches"] if row["found_id"] == found_id)
     assert 0 <= match["score"] <= 1
     match_id = match["id"]
-    assert client.post(f"/v1/matches/{match_id}/claim", headers=stranger).status_code == 403
-    assert client.post(f"/v1/matches/{match_id}/claim", headers=student).status_code == 201
+    candidate = client.get(f"/v1/matches/{match_id}/candidate", headers=student).json()["candidate"]
+    assert candidate["id"] == found_id and "description" not in candidate and "photo_reference" not in candidate
+    assert client.get(f"/v1/matches/{match_id}/candidate", headers=stranger).status_code == 403
+    proof = {"ownership_details": "A small scratch is inside the left pocket."}
+    assert client.post(f"/v1/matches/{match_id}/claim", json=proof, headers=stranger).status_code == 403
+    assert client.post(f"/v1/matches/{match_id}/claim", json=proof, headers=student).status_code == 201
     assert client.post(f"/v1/claims/{match_id}/decision", json={"status": "approved"}, headers=student).status_code == 403
     assert client.post(f"/v1/claims/{match_id}/decision", json={"status": "collected"}, headers=office).status_code == 409
     assert client.post(f"/v1/claims/{match_id}/decision", json={"status": "approved"}, headers=office).status_code == 200
     competing = client.post("/v1/reports", json={**body, "request_id": str(uuid4())}, headers=stranger).json()
-    process_job(store, store.collection("matching_jobs").document(competing["id"]), Matcher("artifacts/mobile_model.joblib"))
+    process_job(store, store.collection("matching_jobs").document(competing["id"]), TfidfMatcher())
     competing_id = f"{competing['id']}_{found_id}"
-    assert client.post(f"/v1/matches/{competing_id}/claim", headers=stranger).status_code == 201
+    assert client.post(f"/v1/matches/{competing_id}/claim", json=proof, headers=stranger).status_code == 201
     assert client.post(f"/v1/claims/{competing_id}/decision", json={"status": "approved"}, headers=office).status_code == 409
     assert client.post(f"/v1/claims/{match_id}/decision", json={"status": "collected"}, headers=office).status_code == 200
+    receipt = client.get(f"/v1/claims/{match_id}/receipt", headers=student)
+    assert receipt.status_code == 200 and receipt.json()["claim_id"] == match_id
+    assert client.get(f"/v1/claims/{match_id}/receipt", headers=stranger).status_code == 403
     assert store.collection("found_reports").document(found_id).get().to_dict()["status"] == "closed"
     assert client.get("/v1/notifications", headers=student).json()["notifications"]

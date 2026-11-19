@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 
 from fastapi import Depends, FastAPI, HTTPException
 from google.cloud import firestore
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .runtime import db, identity, staff
 
@@ -32,6 +32,15 @@ class ReportInput(BaseModel):
     material: str = Field(default="", max_length=100)
     distinctive_features: list[str] = Field(default_factory=list, max_length=10)
     photo_reference: str = Field(default="", max_length=300)
+    sealed: bool = False
+    custody_location: str = Field(default="", max_length=100)
+
+    @model_validator(mode="after")
+    def sensitive_custody(self):
+        if self.report_type == "found" and self.category_id in ("wallet", "documents"):
+            if not self.sealed or not self.custody_location:
+                raise ValueError("Sensitive items must be sealed with a custody location")
+        return self
 
     @field_validator("category_id", "location_id")
     @classmethod
@@ -61,6 +70,18 @@ class Decision(BaseModel):
     status: Literal["approved", "rejected", "collected"]
 
 
+class ClaimInput(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    ownership_details: str = Field(min_length=10, max_length=2000)
+
+
+class CategoryRuleInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    retention_days: int = Field(ge=1, le=365)
+    restricted: bool = False
+    requires_seal: bool = False
+
+
 class DeviceInput(BaseModel):
     token: str = Field(min_length=20, max_length=4096)
 
@@ -81,6 +102,34 @@ def report_access(client, kind, report_id, user):
     return row
 
 
+def admin_only(user):
+    if user["role"] != "admin":
+        raise HTTPException(403, "Technical admin access required")
+
+
+def public_found(row):
+    return {key: row.get(key) for key in ("id", "item_name", "category_id", "location_id", "event_date", "status")}
+
+
+@app.get("/v1/office/unclaimed")
+def unclaimed_items(user=Depends(identity), client=Depends(db)):
+    if not staff(user):
+        raise HTTPException(403, "Office staff access required")
+    rules = {item.id: item.to_dict() for item in client.collection("category_rules").stream()}
+    now = datetime.now(timezone.utc)
+    rows = []
+    for item in client.collection("found_reports").limit(100).stream():
+        row = item.to_dict()
+        policy = rules.get(row.get("category_id", ""), {})
+        created = row.get("created_at")
+        days = policy.get("retention_days")
+        if row.get("status") == "active" and created and days and (now - created).days >= days:
+            rows.append({"id": row["id"], "item_name": row.get("item_name", "Item"),
+                "category_id": row.get("category_id", ""), "retention_days": days,
+                "age_days": (now - created).days})
+    return {"items": rows, "policy_configured_categories": len(rules)}
+
+
 @app.get("/health")
 def health():
     return {"status": "ok", "matching": "separate durable worker"}
@@ -94,6 +143,40 @@ def me(user=Depends(identity)):
 @app.get("/v1/catalog")
 def catalog(user=Depends(identity)):
     return CATALOG
+
+
+@app.get("/v1/admin/category-rules")
+def category_rules(user=Depends(identity), client=Depends(db)):
+    admin_only(user)
+    rows = {item.id: item.to_dict() for item in client.collection("category_rules").stream()}
+    return {"rules": [{"category_id": entry["id"], **rows.get(entry["id"], {})}
+                      for entry in CATALOG["categories"]]}
+
+
+@app.put("/v1/admin/category-rules/{category_id}")
+def update_category_rule(category_id: str, body: CategoryRuleInput, user=Depends(identity), client=Depends(db)):
+    admin_only(user)
+    if category_id not in {entry["id"] for entry in CATALOG["categories"]}:
+        raise HTTPException(404, "Unknown category")
+    if category_id in ("wallet", "documents") and (not body.restricted or not body.requires_seal):
+        raise HTTPException(422, "Wallets and documents require restricted sealed custody")
+    row = {"retention_days": body.retention_days, "restricted": body.restricted,
+           "requires_seal": body.requires_seal, "updated_by": user["uid"],
+           "updated_at": firestore.SERVER_TIMESTAMP}
+    client.collection("category_rules").document(category_id).set(row)
+    client.collection("audit_logs").document().set({"action": "category_rule_updated", "category_id": category_id,
+        "actor_uid": user["uid"], "at": firestore.SERVER_TIMESTAMP})
+    return {"category_id": category_id, **body.model_dump()}
+
+
+@app.get("/v1/admin/audit")
+def audit(user=Depends(identity), client=Depends(db)):
+    admin_only(user)
+    rows = []
+    for item in client.collection("audit_logs").limit(100).stream():
+        row = item.to_dict()
+        rows.append({key: str(row[key]) for key in ("action", "category_id", "actor_uid", "at") if key in row})
+    return {"events": rows}
 
 
 @app.post("/v1/reports", status_code=201)
@@ -151,6 +234,17 @@ def matches(kind: str, report_id: str, user=Depends(identity), client=Depends(db
             "matches": sorted(rows, key=lambda item: item["score"], reverse=True)[:20]}
 
 
+@app.get("/v1/matches/{match_id}/candidate")
+def candidate(match_id: str, user=Depends(identity), client=Depends(db)):
+    match = client.collection("matches").document(match_id).get()
+    if not match.exists or match.to_dict().get("owner_uid") != user["uid"]:
+        raise HTTPException(403, "Only the lost-report owner may view this candidate")
+    found = client.collection("found_reports").document(match.to_dict()["found_id"]).get()
+    if not found.exists:
+        raise HTTPException(404, "Candidate unavailable")
+    return {"candidate": public_found(found.to_dict())}
+
+
 @app.post("/v1/reports/{kind}/{report_id}/retry")
 def retry(kind: str, report_id: str, user=Depends(identity), client=Depends(db)):
     report_access(client, kind, report_id, user)
@@ -169,7 +263,7 @@ def retry(kind: str, report_id: str, user=Depends(identity), client=Depends(db))
 
 
 @app.post("/v1/matches/{match_id}/claim", status_code=201)
-def claim(match_id: str, user=Depends(identity), client=Depends(db)):
+def claim(match_id: str, body: ClaimInput, user=Depends(identity), client=Depends(db)):
     ref = client.collection("claims").document(match_id)
 
     @firestore.transactional
@@ -186,7 +280,8 @@ def claim(match_id: str, user=Depends(identity), client=Depends(db)):
         if found.to_dict()["status"] != "active" or lost.to_dict()["status"] != "active":
             raise HTTPException(409, "This item is no longer available")
         row = {"id": match_id, "owner_uid": user["uid"], "lost_id": data["lost_id"],
-               "found_id": data["found_id"], "status": "pending"}
+               "found_id": data["found_id"], "status": "pending",
+               "ownership_details": body.ownership_details}
         transaction.set(ref, row)
         return row
     return save(client.transaction())
@@ -230,7 +325,10 @@ def decision(claim_id: str, body: Decision, user=Depends(identity), client=Depen
         elif row["status"] == "approved":
             transaction.update(found_ref, {"reserved_claim": firestore.DELETE_FIELD})
             transaction.update(lost_ref, {"reserved_claim": firestore.DELETE_FIELD})
-        transaction.update(ref, {"status": body.status, "reviewer_uid": user["uid"]})
+        change = {"status": body.status, "reviewer_uid": user["uid"]}
+        if body.status == "collected":
+            change["collected_at"] = firestore.SERVER_TIMESTAMP
+        transaction.update(ref, change)
         transaction.set(client.collection("audit_logs").document(), {
             "claim_id": claim_id, "action": body.status, "actor_uid": user["uid"], "at": firestore.SERVER_TIMESTAMP})
         transaction.set(client.collection("notifications").document(), {
@@ -238,6 +336,21 @@ def decision(claim_id: str, body: Decision, user=Depends(identity), client=Depen
             "created_at": firestore.SERVER_TIMESTAMP, "push_status": "pending"})
     review(client.transaction())
     return {"status": body.status}
+
+
+@app.get("/v1/claims/{claim_id}/receipt")
+def handover_receipt(claim_id: str, user=Depends(identity), client=Depends(db)):
+    snap = client.collection("claims").document(claim_id).get()
+    if not snap.exists:
+        raise HTTPException(404, "Claim not found")
+    row = snap.to_dict()
+    if row["owner_uid"] != user["uid"] and not staff(user):
+        raise HTTPException(403, "Receipt belongs to another user")
+    if row["status"] != "collected":
+        raise HTTPException(409, "Handover has not been recorded")
+    found = client.collection("found_reports").document(row["found_id"]).get()
+    return {"claim_id": claim_id, "item_name": found.to_dict().get("item_name", "Item") if found.exists else "Item",
+            "collected_at": str(row.get("collected_at", "")), "recorded_by": row.get("reviewer_uid", "")}
 
 
 @app.get("/v1/notifications")
