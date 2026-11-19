@@ -49,4 +49,4 @@ def identity(credentials: HTTPAuthorizationCredentials = Depends(bearer)):
 
 
 def staff(user):
-    return user["role"] in ("office_staff", "admin")
+    return user["role"] == "office_staff"

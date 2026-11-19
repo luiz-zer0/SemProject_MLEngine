@@ -31,3 +31,14 @@ def test_validation_and_role_boundaries():
         assert client.post("/v1/claims/x/decision", json={"status": "approved"}).status_code == 403
     finally:
         app.dependency_overrides.clear()
+
+
+def test_admin_cannot_act_as_office_staff():
+    app.dependency_overrides[identity] = lambda: {"uid": "admin", "role": "admin"}
+    app.dependency_overrides[db] = lambda: None
+    try:
+        client = TestClient(app)
+        assert client.post("/v1/reports", json=payload(report_type="found")).status_code == 403
+        assert client.post("/v1/claims/x/decision", json={"status": "approved"}).status_code == 403
+    finally:
+        app.dependency_overrides.clear()

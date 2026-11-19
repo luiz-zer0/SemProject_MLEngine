@@ -6,7 +6,7 @@ service firebase.storage {
         && request.auth.token.email.matches('.*@strathmore[.]edu$');
     }
     function staff() {
-      return member() && request.auth.token.get('role', 'student') in ['office_staff', 'admin'];
+      return member() && request.auth.token.get('role', 'student') == 'office_staff';
     }
     match /report_photos/{uid}/{requestId}/photo {
       allow read: if member() && (request.auth.uid == uid || staff());
