@@ -5,10 +5,11 @@ and a separate worker using the shared TF-IDF and knowledge-agent pipeline.
 There is no CLIP, image inference, or vector database. Existing experiment scripts and results
 are not replaced. Photographs are viewed by their uploader and authorized staff only.
 
-Validation on 19 November 2026: the Android debug APK and unit tests pass; service role tests,
+Validation on 20 November 2026: the Android debug APK and unit tests pass; service role tests,
 the end-to-end Firebase emulator flow, and Firestore/Storage authorization tests pass. The APK
-was installed and launched on a connected Samsung Android device. Signed-in staff/admin screens
-could not be tested on that device because no live staff/admin claim or deployed API exists.
+was installed and launched on a Samsung Android device over wireless ADB. Verified live accounts
+have office and technical-admin claims, but those signed-in flows were not exercised on the device.
+A local API can be reached through ADB reverse during development; it is not a hosted service.
 
 The live project is `lost-and-found-9671c`. Email-link authentication and Firestore rules are
 configured. Firebase Console requires a billing upgrade before Storage can be initialized on
