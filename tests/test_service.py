@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from fastapi.testclient import TestClient
 from service.api import app
+from service.api import auth_users
 from service.runtime import identity, db
 
 
@@ -45,5 +46,81 @@ def test_admin_cannot_act_as_office_staff():
         assert client.post("/v1/claims/x/decision", json={"status": "approved"}).status_code == 403
         assert client.put("/v1/admin/category-rules/unknown", json={"retention_days": 30}).status_code == 404
         assert client.put("/v1/admin/category-rules/wallet", json={"retention_days": 30}).status_code == 422
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_admin_role_management_preserves_claims_and_audits():
+    from types import SimpleNamespace
+
+    class Users:
+        def __init__(self):
+            self.account = SimpleNamespace(uid="office-1", email="office@strathmore.edu",
+                                           email_verified=True, custom_claims={"feature": "keep"})
+
+        def by_email(self, email):
+            assert email == self.account.email
+            return self.account
+
+        def by_uid(self, uid):
+            assert uid == self.account.uid
+            return self.account
+
+        def set_claims(self, uid, claims):
+            self.account.custom_claims = claims
+
+        def revoke_sessions(self, uid):
+            self.revoked_uid = uid
+
+    class Collection:
+        def __init__(self):
+            self.events = []
+
+        def document(self):
+            return self
+
+        def set(self, event):
+            self.events.append(event)
+
+    class DB:
+        def __init__(self):
+            self.audit = Collection()
+
+        def collection(self, name):
+            assert name == "audit_logs"
+            return self.audit
+
+    users, database = Users(), DB()
+    app.dependency_overrides[identity] = lambda: {"uid": "admin-1", "role": "admin"}
+    app.dependency_overrides[auth_users] = lambda: users
+    app.dependency_overrides[db] = lambda: database
+    try:
+        client = TestClient(app)
+        assert client.get("/v1/admin/accounts", params={"email": "office@strathmore.edu"}).json()["account"]["role"] == "student"
+        response = client.put("/v1/admin/accounts/office-1/role", json={"role": "office_staff"})
+        assert response.status_code == 200
+        assert response.json()["account"]["role"] == "office_staff"
+        assert users.account.custom_claims == {"feature": "keep", "role": "office_staff"}
+        assert users.revoked_uid == "office-1"
+        assert database.audit.events[0]["target_uid"] == "office-1"
+        client.put("/v1/admin/accounts/office-1/role", json={"role": "office_staff"})
+        assert len(database.audit.events) == 1
+        client.put("/v1/admin/accounts/office-1/role", json={"role": "student"})
+        assert users.account.custom_claims == {"feature": "keep"}
+        assert client.put("/v1/admin/accounts/admin-1/role", json={"role": "student"}).status_code == 409
+        users.account.email_verified = False
+        assert client.put("/v1/admin/accounts/office-1/role", json={"role": "admin"}).status_code == 422
+        assert client.get("/v1/admin/accounts", params={"email": "outside@example.com"}).status_code == 422
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_only_admin_can_manage_roles():
+    app.dependency_overrides[identity] = lambda: {"uid": "office-1", "role": "office_staff"}
+    app.dependency_overrides[db] = lambda: None
+    try:
+        client = TestClient(app)
+        assert client.get("/v1/admin/accounts", params={"email": "office@strathmore.edu"}).status_code == 403
+        assert client.put("/v1/admin/accounts/other/role", json={"role": "admin"}).status_code == 403
     finally:
         app.dependency_overrides.clear()

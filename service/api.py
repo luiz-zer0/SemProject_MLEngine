@@ -8,10 +8,11 @@ from uuid import UUID
 from zoneinfo import ZoneInfo
 
 from fastapi import Depends, FastAPI, HTTPException
+from firebase_admin import auth as firebase_auth
 from google.cloud import firestore
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from .runtime import db, identity, staff
+from .runtime import db, firebase_app, identity, staff
 
 CATALOG = json.loads((Path(__file__).parent / "catalog.json").read_text())
 app = FastAPI(title="Strathmore Lost & Found", version="1.0.0")
@@ -80,6 +81,37 @@ class CategoryRuleInput(BaseModel):
     retention_days: int = Field(ge=1, le=365)
     restricted: bool = False
     requires_seal: bool = False
+
+
+class RoleInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    role: Literal["student", "office_staff", "admin"]
+
+
+class AuthUsers:
+    """Keep privileged Auth operations behind a replaceable service boundary."""
+
+    def by_email(self, email):
+        return firebase_auth.get_user_by_email(email, app=firebase_app())
+
+    def by_uid(self, uid):
+        return firebase_auth.get_user(uid, app=firebase_app())
+
+    def set_claims(self, uid, claims):
+        firebase_auth.set_custom_user_claims(uid, claims, app=firebase_app())
+
+    def revoke_sessions(self, uid):
+        firebase_auth.revoke_refresh_tokens(uid, app=firebase_app())
+
+
+def auth_users():
+    return AuthUsers()
+
+
+def account_summary(account):
+    return {"uid": account.uid, "email": account.email,
+            "email_verified": account.email_verified,
+            "role": (account.custom_claims or {}).get("role", "student")}
 
 
 class DeviceInput(BaseModel):
@@ -153,6 +185,46 @@ def category_rules(user=Depends(identity), client=Depends(db)):
                       for entry in CATALOG["categories"]]}
 
 
+@app.get("/v1/admin/accounts")
+def find_account(email: str, user=Depends(identity), users=Depends(auth_users)):
+    admin_only(user)
+    address = email.strip().lower()
+    if not address.endswith("@strathmore.edu") or len(address) > 254:
+        raise HTTPException(422, "Enter an exact Strathmore email address")
+    try:
+        account = users.by_email(address)
+    except firebase_auth.UserNotFoundError:
+        raise HTTPException(404, "Account not found. The person must sign in first") from None
+    return {"account": account_summary(account)}
+
+
+@app.put("/v1/admin/accounts/{uid}/role")
+def update_account_role(uid: str, body: RoleInput, user=Depends(identity),
+                        users=Depends(auth_users), client=Depends(db)):
+    admin_only(user)
+    if uid == user["uid"]:
+        raise HTTPException(409, "You cannot change your own role")
+    try:
+        account = users.by_uid(uid)
+    except firebase_auth.UserNotFoundError:
+        raise HTTPException(404, "Account not found") from None
+    if not account.email or not account.email.lower().endswith("@strathmore.edu") or not account.email_verified:
+        raise HTTPException(422, "Only verified Strathmore accounts can receive roles")
+    previous = (account.custom_claims or {}).get("role", "student")
+    if previous != body.role:
+        claims = dict(account.custom_claims or {})
+        if body.role == "student":
+            claims.pop("role", None)
+        else:
+            claims["role"] = body.role
+        users.set_claims(uid, claims)
+        users.revoke_sessions(uid)
+        client.collection("audit_logs").document().set({"action": "role_changed", "actor_uid": user["uid"],
+            "target_uid": uid, "previous_role": previous, "new_role": body.role,
+            "at": firestore.SERVER_TIMESTAMP})
+    return {"account": account_summary(users.by_uid(uid))}
+
+
 @app.put("/v1/admin/category-rules/{category_id}")
 def update_category_rule(category_id: str, body: CategoryRuleInput, user=Depends(identity), client=Depends(db)):
     admin_only(user)
@@ -173,9 +245,10 @@ def update_category_rule(category_id: str, body: CategoryRuleInput, user=Depends
 def audit(user=Depends(identity), client=Depends(db)):
     admin_only(user)
     rows = []
-    for item in client.collection("audit_logs").limit(100).stream():
+    for item in client.collection("audit_logs").order_by("at", direction=firestore.Query.DESCENDING).limit(100).stream():
         row = item.to_dict()
-        rows.append({key: str(row[key]) for key in ("action", "category_id", "actor_uid", "at") if key in row})
+        rows.append({key: str(row[key]) for key in
+            ("action", "category_id", "actor_uid", "target_uid", "previous_role", "new_role", "at") if key in row})
     return {"events": rows}
 
 

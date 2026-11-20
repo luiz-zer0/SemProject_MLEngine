@@ -56,6 +56,14 @@ def test_end_to_end_persistence_matching_claims_and_access():
     assert client.put("/v1/admin/category-rules/wallet", json={"retention_days": 30,
         "restricted": True, "requires_seal": True}, headers=admin).status_code == 200
     assert client.get("/v1/admin/category-rules", headers=admin).json()["rules"]
+    target_email = f"role-{uuid4().hex}@strathmore.edu"
+    target = auth.create_user(email=target_email, email_verified=True, app=firebase_app())
+    assert client.get("/v1/admin/accounts", params={"email": target_email}, headers=office).status_code == 403
+    account = client.get("/v1/admin/accounts", params={"email": target_email}, headers=admin)
+    assert account.status_code == 200 and account.json()["account"]["uid"] == target.uid
+    changed = client.put(f"/v1/admin/accounts/{target.uid}/role", json={"role": "office_staff"}, headers=admin)
+    assert changed.status_code == 200 and changed.json()["account"]["role"] == "office_staff"
+    assert auth.get_user(target.uid, app=firebase_app()).custom_claims["role"] == "office_staff"
     assert client.get("/v1/admin/audit", headers=admin).json()["events"]
     assert client.get("/v1/office/unclaimed", headers=admin).status_code == 403
     assert client.get("/v1/office/unclaimed", headers=office).status_code == 200

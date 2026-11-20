@@ -127,6 +127,11 @@ node rules.test.mjs
    set `APP_ENV=production`. Use HTTPS for the API URL in the Android configuration.
 5. Grant office and technical-admin custom claims through trusted administrative tooling. The local seed script
    intentionally cannot assign production roles. Users must refresh/sign in again after a role change.
+   Once the API is deployed, a signed-in technical admin can look up an existing account by exact
+   Strathmore email in Access & Audit and assign student, office, or admin access. The account must
+   have a verified email. Changes preserve unrelated claims, revoke the affected account's sessions,
+   and record the actor, target UID, old role, and new role in the audit log. The admin cannot change
+   their own role. The app never receives Admin SDK credentials.
 6. Verify cloud sign-in/email delivery, Storage access, FCM notification permission/delivery,
    API/worker restart recovery and Android runtime behavior before using real reports.
 
