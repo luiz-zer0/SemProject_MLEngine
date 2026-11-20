@@ -50,7 +50,7 @@ Both use `LocalDemo123!`. The seed script refuses non-emulator projects.
 The Emulator UI is at http://127.0.0.1:4000 and API docs at http://127.0.0.1:8000/docs.
 Emulator data is temporary unless you explicitly export/import it with Firebase CLI.
 
-Open `C:\Users\HP\AndroidStudioProjects\MAD_project` in Android Studio and run the debug
+Clone [MAD_project](https://github.com/luiz-zer0/MAD_project), open it in Android Studio, and run the debug
 build on an Android emulator. Without `firebase.properties`, debug connects to the host
 through `10.0.2.2`. The API/Auth/Storage ports are 8000/9099/9199. This configuration is
 for the Android emulator; a physical device needs a deliberately configured development
