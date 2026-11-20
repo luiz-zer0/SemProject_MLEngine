@@ -3,7 +3,8 @@
   "storage": { "rules": "storage.rules" },
   "hosting": {
     "public": "hosting",
-    "ignore": ["firebase.json", "**/node_modules/**"]
+    "ignore": ["firebase.json", "**/node_modules/**"],
+    "rewrites": [{ "source": "/finishSignIn", "destination": "/index.html" }]
   },
   "emulators": {
     "auth": { "host": "127.0.0.1", "port": 9099 },
