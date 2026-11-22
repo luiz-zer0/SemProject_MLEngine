@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import csv
 import json
-import sys
-from collections import defaultdict
+import hashlib
+from datetime import datetime
 from pathlib import Path
 
 import numpy as np
@@ -22,8 +22,8 @@ DATA = ROOT / "data" / "processed" / "ranking"
 RESULT = ROOT / "results" / "ranking_benchmark.json"
 
 
-def rows(name):
-    with (DATA / name).open(encoding="utf-8", newline="") as stream:
+def rows(name, data=DATA):
+    with (data / name).open(encoding="utf-8", newline="") as stream:
         return list(csv.DictReader(stream))
 
 
@@ -47,9 +47,11 @@ def attributes(lost, found):
 
 
 def as_report(row, kind):
+    date_value = row.get("date_lost" if kind == "lost" else "event_date", "")
     return Report(report_id=row[f"{kind}_id"], report_type=kind, description=row["description"],
                   category=row["category"], colour=row.get("colour", ""), brand=row.get("brand", ""),
-                  location=row.get("last_seen_location" if kind == "lost" else "location", ""))
+                  location=row.get("last_seen_location" if kind == "lost" else "location", ""),
+                  reported_at=datetime.fromisoformat(date_value) if date_value else None)
 
 
 def ranking_metrics(queries, scores, found_ids):
@@ -72,15 +74,17 @@ def ranking_metrics(queries, scores, found_ids):
             "matched_details": matched, "no_match_details": unmatched}
 
 
-def main():
-    audit = validate(DATA)
+def main(data=DATA, result_path=RESULT):
+    data = Path(data)
+    result_path = Path(result_path)
+    audit = validate(data)
     if not audit["valid"]:
         raise ValueError(audit["errors"])
-    found = {row["found_id"]: row for row in rows("found_reports.csv")}
-    lost = {row["lost_id"]: row for row in rows("lost_reports.csv")}
-    labels = rows("match_labels.csv")
-    queries = rows("evaluation_queries.csv")
-    pools = json.loads((DATA / "candidate_pools.json").read_text(encoding="utf-8"))
+    found = {row["found_id"]: row for row in rows("found_reports.csv", data)}
+    lost = {row["lost_id"]: row for row in rows("lost_reports.csv", data)}
+    labels = rows("match_labels.csv", data)
+    queries = rows("evaluation_queries.csv", data)
+    pools = json.loads((data / "candidate_pools.json").read_text(encoding="utf-8"))
     if len(pools) != 1 or len({q["candidate_pool_id"] for q in queries}) != 1:
         raise ValueError("This comparison expects one frozen candidate pool")
     found_ids = next(iter(pools.values()))
@@ -121,6 +125,9 @@ def main():
         choices.append((metric["recall_at_5"], metric["mrr"], weight, candidate))
     _, _, weight, scores["hybrid"] = max(choices, key=lambda item: (item[0], item[1], -item[2]))
     output = {"provenance": "AI-authored controlled fiction; no real-campus accuracy claim",
+              "source_sha256": {name: hashlib.sha256((data / name).read_bytes()).hexdigest()
+                                for name in ("found_reports.csv", "lost_reports.csv", "match_labels.csv",
+                                             "evaluation_queries.csv", "candidate_pools.json")},
               "dataset": audit["counts"], "sklearn_version": sklearn.__version__,
               "tfidf": {"fit_split": "train", "ngram_range": [1, 2], "vocabulary_size": len(vectorizer.vocabulary_)},
               "logistic_regression": {"fit_split": "train", "pair_count": len(training), "features": list(FEATURE_NAMES)},
@@ -133,12 +140,24 @@ def main():
         false_suggestions = sum(row["top_score"] >= threshold for row in test["no_match_details"])
         output["methods"][name] = {"validation": val, "test": test,
                                     "strong_match_threshold_from_validation": threshold,
+                                    "test_matched_queries_with_any_strong_suggestion": sum(
+                                        max(method_scores[(q["lost_id"], fid)] for fid in found_ids) >= threshold
+                                        for q in queries if q["split"] == "test" and q["has_match"] == "1"),
+                                    "test_relevant_found_above_threshold": sum(
+                                        any(method_scores[(q["lost_id"], fid)] >= threshold
+                                            for fid in q["relevant_found_ids"].split("|") if fid)
+                                        for q in queries if q["split"] == "test" and q["has_match"] == "1"),
                                     "test_no_match_false_suggestions": false_suggestions,
                                     "test_no_match_denominator": test["no_match_queries"]}
-    RESULT.parent.mkdir(parents=True, exist_ok=True)
-    RESULT.write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
+    result_path.parent.mkdir(parents=True, exist_ok=True)
+    result_path.write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({name: info["test"] for name, info in output["methods"].items()}, indent=2))
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data", type=Path, default=DATA)
+    parser.add_argument("--result", type=Path, default=RESULT)
+    args = parser.parse_args()
+    main(args.data, args.result)

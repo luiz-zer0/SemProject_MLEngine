@@ -7,6 +7,7 @@
 - The new controlled-fiction dataset builds 24 found records, 27 lost queries, 24 positive labels, 168 negative labels, three no-match queries and one fixed 24-item pool. The structural validator passes. Descriptions were AI authored and need independent team review.
 - `results/ranking_benchmark.json` contains the measured comparison. Eight matched and two no-match test queries were evaluated. The perfect structured-feature scores are caused by shared attributes in the constructed pairs, and the no-match checks still produce false strong suggestions. These are not real-campus accuracy results.
 - `notebooks/NLP_Final.ipynb` presents data provenance, grouped preparation, the preserved classifier, TF-IDF and cosine similarity, hybrid validation, measured metrics, explanations and a direct local preview-route call. It was executed in one Python process; a clean Jupyter kernel run and team review remain pending.
+- The later version 2 benchmark and updated notebook are documented in `docs/ranking_v2_evaluation.md`. Use its harder test results in the presentation; keep version 1 as historical evidence of an overly easy constructed fixture.
 - The authenticated FastAPI service and Firestore worker exist in this repository; the worker calls the NLP pipeline. The companion Android application has report and match screens, but no current phone-to-service run was observed in this task.
 
 ## Three-developer review and demo ownership
