@@ -1,0 +1,25 @@
+found_id,item_group_id,category,description,colour,brand,distinguishing_attributes,location,event_date,report_status,source_type,split
+f-g001,g001,plastic_water_bottle,Clear plastic bottle with orange flip lid,clear,,,library,,active,ai_constructed_fictional,train
+f-g002,g002,metallic_bottle,Silver insulated flask with dent near base,silver,,,cafeteria,,active,ai_constructed_fictional,train
+f-g003,g003,pencil_pouch,Navy canvas pencil case with yellow zip,navy,,,msb,,active,ai_constructed_fictional,train
+f-g004,g004,usb_cable,Short white USB C cable with green tape,white,,,library,,active,ai_constructed_fictional,train
+f-g005,g005,laptop_charger,Black Dell 65W power adapter with frayed end,black,Dell,,msb,,active,ai_constructed_fictional,train
+f-g006,g006,mouse,Red wireless computer mouse with missing battery cover,red,,,cafeteria,,active,ai_constructed_fictional,train
+f-g007,g007,sweater,Grey knitted pullover with blue cuff stitching,grey,,,library,,active,ai_constructed_fictional,train
+f-g008,g008,calculator,Black Casio scientific calculator with cracked corner,black,Casio,,msb,,active,ai_constructed_fictional,train
+f-g009,g009,plastic_water_bottle,Purple plastic bottle with white mountain sticker,purple,,,library,,active,ai_constructed_fictional,validation
+f-g010,g010,metallic_bottle,Blue steel bottle with chipped rim,blue,,,msb,,active,ai_constructed_fictional,validation
+f-g011,g011,pencil_pouch,Black mesh pencil pouch with triangular pull,black,,,cafeteria,,active,ai_constructed_fictional,validation
+f-g012,g012,usb_cable,Long braided black USB C cord with red sleeve,black,,,library,,active,ai_constructed_fictional,validation
+f-g013,g013,laptop_charger,Grey HP 90W charger with blue connector,grey,HP,,msb,,active,ai_constructed_fictional,validation
+f-g014,g014,headphones,White over ear headset with taped left cup,white,,,cafeteria,,active,ai_constructed_fictional,validation
+f-g015,g015,umbrella,Small yellow folding umbrella with bent handle,yellow,,,library,,active,ai_constructed_fictional,validation
+f-g016,g016,spectacle_case,Green hard glasses case with scratched clasp,green,,,msb,,active,ai_constructed_fictional,validation
+f-g017,g017,plastic_water_bottle,Green plastic bottle with black carrying loop,green,,,cafeteria,,active,ai_constructed_fictional,test
+f-g018,g018,metallic_bottle,Matte black steel flask with silver base,black,,,library,,active,ai_constructed_fictional,test
+f-g019,g019,pencil_pouch,Pink striped pencil case with broken zip,pink,,,msb,,active,ai_constructed_fictional,test
+f-g020,g020,usb_cable,Blue micro USB cable with knot near plug,blue,,,cafeteria,,active,ai_constructed_fictional,test
+f-g021,g021,laptop_charger,Black Lenovo 65W adapter with nicked cable,black,Lenovo,,library,,active,ai_constructed_fictional,test
+f-g022,g022,mouse,Silver Logitech mouse with purple sticker,silver,Logitech,,msb,,active,ai_constructed_fictional,test
+f-g023,g023,calculator,Blue Casio calculator with missing key cover,blue,Casio,,cafeteria,,active,ai_constructed_fictional,test
+f-g024,g024,spectacles,Round black eyeglasses with loose right arm,black,,,library,,active,ai_constructed_fictional,test

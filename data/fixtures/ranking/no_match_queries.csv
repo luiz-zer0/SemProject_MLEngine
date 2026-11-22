@@ -1,0 +1,4 @@
+lost_id,split,category,description,colour,brand,location,source_type
+nm001,validation,scarf,Orange scarf with embroidered swan,orange,,msb,ai_constructed_fictional
+nm002,test,watch,Gold watch with cracked face,gold,,library,ai_constructed_fictional
+nm003,test,umbrella,Large teal umbrella with wooden handle,teal,,cafeteria,ai_constructed_fictional

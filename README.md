@@ -1,5 +1,21 @@
 # Strathmore Lost & Found: NLP matching prototype
 
+## Inventory-informed fictional benchmark (23 November 2026)
+
+The transcribed Office inventory category quantities are in `data/raw/campus/office_inventory_aggregate.csv` (388 June–July plus 299 August quantities). The linked original Google Docs were inaccessible to the connected account; the transcription still needs source verification. These aggregate counts are not individual reports. A separate AI-authored, controlled fictional exercise lives under `data/fixtures/ranking/`, with its generated four-table dataset under `data/processed/ranking/`. Independent student review of the examples and labels is pending.
+
+From the repository root, after installing `requirements.txt` and `httpx` for the API notebook cell:
+
+```powershell
+python -m scripts.prepare_ranking_benchmark
+python -m scripts.validate_ranking_dataset data/processed/ranking
+python -m scripts.evaluate_ranking_benchmark
+python -m pytest -q tests/test_ranking_benchmark.py tests/test_ranking_dataset_validator.py
+jupyter nbconvert --execute --to notebook --inplace notebooks/NLP_Final.ipynb
+```
+
+The evaluator fits TF-IDF and Logistic Regression on training groups, selects the hybrid weight on validation groups, and reports held-out Top-1, Recall@5, MRR and no-match false suggestions for five methods against the same 24-item pool. Its result file is `results/ranking_benchmark.json`. All outcomes are for constructed fiction and must not be described as real Strathmore matching accuracy. The assessed notebook is `notebooks/NLP_Final.ipynb`; the team must review and approve its content. See `docs/ranking_dataset_handoff.md` for data limits and remaining integration work.
+
 This repository now has two distinct parts: a **text-first matching prototype** under development and the retained **Logistic Regression coursework experiment**. The prototype ranks found reports for staff to review; it does not decide ownership or authorize handover.
 
 ## Current direction and status

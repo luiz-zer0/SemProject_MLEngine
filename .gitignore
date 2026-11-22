@@ -14,6 +14,9 @@ results/delhi_experiment/
 
 artifacts/
 .venv-service/
+.deps/
+.uv-cache/
+.test-tmp/
 service-tests.log
 .env
 *service-account*.json

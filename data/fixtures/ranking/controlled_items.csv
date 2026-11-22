@@ -1,0 +1,25 @@
+item_group_id,split,category,found_description,lost_description,colour,brand,location,source_type
+g001,train,plastic_water_bottle,Clear plastic bottle with orange flip lid,I misplaced my transparent drink bottle; the top is bright orange,clear,,library,ai_constructed_fictional
+g002,train,metallic_bottle,Silver insulated flask with dent near base,Stainless steel water container; bottom has a small knock,silver,,cafeteria,ai_constructed_fictional
+g003,train,pencil_pouch,Navy canvas pencil case with yellow zip,My dark blue stationery bag has a yellow zipper,navy,,msb,ai_constructed_fictional
+g004,train,usb_cable,Short white USB C cable with green tape,Charging lead with a green tape mark; white and quite short,white,,library,ai_constructed_fictional
+g005,train,laptop_charger,Black Dell 65W power adapter with frayed end,Lost a Dell laptop brick; cable has worn insulation,black,Dell,msb,ai_constructed_fictional
+g006,train,mouse,Red wireless computer mouse with missing battery cover,Small cordless red mouse; rear battery lid is gone,red,,cafeteria,ai_constructed_fictional
+g007,train,sweater,Grey knitted pullover with blue cuff stitching,My grey jersey has blue thread around the sleeves,grey,,library,ai_constructed_fictional
+g008,train,calculator,Black Casio scientific calculator with cracked corner,Missing Casio maths calculator; one corner of the casing is chipped,black,Casio,msb,ai_constructed_fictional
+g009,validation,plastic_water_bottle,Purple plastic bottle with white mountain sticker,My violet drinking bottle had a mountain decal in white,purple,,library,ai_constructed_fictional
+g010,validation,metallic_bottle,Blue steel bottle with chipped rim,Blue metal flask; paint is coming off around its mouth,blue,,msb,ai_constructed_fictional
+g011,validation,pencil_pouch,Black mesh pencil pouch with triangular pull,Lost a see through dark stationery case with a triangle zip tab,black,,cafeteria,ai_constructed_fictional
+g012,validation,usb_cable,Long braided black USB C cord with red sleeve,My phone lead is woven and black with red covering at the plug,black,,library,ai_constructed_fictional
+g013,validation,laptop_charger,Grey HP 90W charger with blue connector,HP notebook power supply; grey brick and blue tipped plug,grey,HP,msb,ai_constructed_fictional
+g014,validation,headphones,White over ear headset with taped left cup,My large white headphones have tape on one side,white,,cafeteria,ai_constructed_fictional
+g015,validation,umbrella,Small yellow folding umbrella with bent handle,Pocket sized yellow rain umbrella; handle is crooked,yellow,,library,ai_constructed_fictional
+g016,validation,spectacle_case,Green hard glasses case with scratched clasp,Lost my green rigid eyewear box; the latch is scraped,green,,msb,ai_constructed_fictional
+g017,test,plastic_water_bottle,Green plastic bottle with black carrying loop,Missing green water container with a dark strap on the cap,green,,cafeteria,ai_constructed_fictional
+g018,test,metallic_bottle,Matte black steel flask with silver base,My black insulated bottle has a shiny metal bottom,black,,library,ai_constructed_fictional
+g019,test,pencil_pouch,Pink striped pencil case with broken zip,Stationery pouch with pink lines; zipper does not close,pink,,msb,ai_constructed_fictional
+g020,test,usb_cable,Blue micro USB cable with knot near plug,Old style blue phone charging lead tied close to the connector,blue,,cafeteria,ai_constructed_fictional
+g021,test,laptop_charger,Black Lenovo 65W adapter with nicked cable,Lost a Lenovo laptop power brick; wire has a small cut,black,Lenovo,library,ai_constructed_fictional
+g022,test,mouse,Silver Logitech mouse with purple sticker,My Logitech computer pointer is silver and has a violet label,silver,Logitech,msb,ai_constructed_fictional
+g023,test,calculator,Blue Casio calculator with missing key cover,Casio maths device in blue; one button cap has fallen off,blue,Casio,cafeteria,ai_constructed_fictional
+g024,test,spectacles,Round black eyeglasses with loose right arm,Missing circular dark frames; right temple wobbles,black,,library,ai_constructed_fictional
