@@ -36,11 +36,11 @@ NLP retrieves candidates from item names and descriptions. The matching agent co
 | Component | Current status |
 | --- | --- |
 | CSV field adapter, text normalization and TF-IDF ranking | Implemented in `matching_system/nlp_retrieval.py`; takes a replaceable found-report inventory. |
-| Matching and staff-workflow agents | Implemented as separately testable Python modules and connected to a local synthetic API preview; not connected to a mobile app. |
+| Matching and staff-workflow agents | Connected to the authenticated API, Firestore worker and companion Android report/results screens. |
 | Data for development | 46 synthetic campus reports, 32 designed pairs and three additional synthetic queries. No verified real lost/found pairs are available here. |
 | Real-case evaluation | Pending permitted reports and independently reviewed same-item links. No campus matching accuracy is claimed. |
-| Deliverable 3 mobile demonstration | Pending. This repository has no Android client; the companion `AI-project/android` is currently a starter screen without API integration. |
-| Deliverable 3 final notebook | Pending. `notebooks/LogisticRegression_Base.ipynb` is the earlier coursework baseline, not the final NLP notebook. |
+| Deliverable 3 mobile demonstration | The companion `MAD_project` app builds and consumes ranked API results; a current device walkthrough is pending because the available emulator lacks disk space. |
+| Deliverable 3 final notebook | `notebooks/NLP_Final.ipynb` contains the controlled version 2 evaluation; clean-kernel execution and student review remain pending. |
 
 The currently reviewed facts are limited to the fields on `TextReport`. Category disagreement is **review evidence**, not an automatic exclusion; different locations can still describe the same item. Missing facts are unknown. The rules are explicit constants with stable IDs; a separately managed knowledge-base file remains future work. The local ranker-to-agents-to-API path is integrated.
 
@@ -129,12 +129,12 @@ The older campus classifier uses 32 designed pairs and historically maps `plausi
 
 To reproduce the Delhi notebook, obtain the raw CSV as described in [dataset sources](docs/dataset_sources.md), place it at `data/raw/delhi/delhi_lost_and_found.csv`, verify its documented hash, run `python -m scripts.create_delhi_experiment`, then run all cells in the notebook. The raw Delhi CSV and row-level derivatives are Git-ignored because descriptions may contain personal information. The historical synthetic campus model can be run with `python -m scripts.run_model`.
 
-## Next integration steps
+## Presentation and next validation steps
 
-Review the fixture labels and demo errors, validate the intake contract with permitted real reports and verified pairs, and test the full path before a field pilot. For Deliverable 3, a local mobile client can call the synthetic preview with invented sample inputs; real-report use still requires persistence, authentication and reviewed data handling. Keep every output framed as a possible-match suggestion requiring staff verification. See [team contributions](docs/contributions.md) for the repository history.
+Follow the [presentation runbook](docs/presentation_runbook_2026-11-23.md) for the local Firebase emulator, API, worker and Android demo build. Review the fixture labels and demo errors, validate the intake contract with permitted real reports and verified pairs, and test the full path on a device before a field pilot. Keep every output framed as a possible-match suggestion requiring staff verification. See [team contributions](docs/contributions.md) for the repository history.
 
 The [Deliverable 3 readiness review and dated team plan](docs/deliverable3_readiness.md) covers the required mobile demo and final notebook. CLIP is outside the current text-only engine: the companion repository has an unimplemented image-encoder placeholder, no evaluated CLIP result, and no paired image dataset. It is not a dependency for this deliverable.
 
 ## Mobile Firebase integration
 
-See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) for the authenticated Android service, Firebase emulators, and validation commands. The service integration still uses the older classifier; it must be switched to this repository's TF-IDF pipeline before the Deliverable 3 demonstration.
+See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) for the authenticated Android service, Firebase emulators, and validation commands. The worker uses TF-IDF retrieval and knowledge agents. The version 2 hybrid benchmark is an offline comparison and is not deployed: its four no-match test queries all received false strong suggestions, so its scores cannot justify automatic decisions.

@@ -8,7 +8,8 @@
 - `results/ranking_benchmark.json` contains the measured comparison. Eight matched and two no-match test queries were evaluated. The perfect structured-feature scores are caused by shared attributes in the constructed pairs, and the no-match checks still produce false strong suggestions. These are not real-campus accuracy results.
 - `notebooks/NLP_Final.ipynb` presents data provenance, grouped preparation, the preserved classifier, TF-IDF and cosine similarity, hybrid validation, measured metrics, explanations and a direct local preview-route call. It was executed in one Python process; a clean Jupyter kernel run and team review remain pending.
 - The later version 2 benchmark and updated notebook are documented in `docs/ranking_v2_evaluation.md`. Use its harder test results in the presentation; keep version 1 as historical evidence of an overly easy constructed fixture.
-- The authenticated FastAPI service and Firestore worker exist in this repository; the worker calls the NLP pipeline. The companion Android application has report and match screens, but no current phone-to-service run was observed in this task.
+- The authenticated FastAPI service and Firestore worker use TF-IDF retrieval and knowledge agents. The companion `MAD_project` Android app builds with ranked scores, explanations, refresh and explicit pending/empty/error states. A current device walkthrough is still pending.
+- The full local Python suite passed (49 passed, 1 emulator-only skip); the Firebase emulator suite passed (50 passed), including authorization tests. A real HTTP smoke against the local API, Auth and Firestore emulators saved reports, processed a worker job, returned a scored candidate and rejected unauthorized access. See `scripts/verify_presentation_network.py`.
 
 ## Three-developer review and demo ownership
 
@@ -20,4 +21,4 @@ All three should inspect the same test result JSON and understand why the contro
 
 ## Current blockers
 
-The original inventory Docs are inaccessible to the connected account. No verified individual Office records or independently reviewed same-item links are available. The HTTP `TestClient` run stalled in the temporary Python 3.14 environment used here; the notebook's direct route-function call is not an HTTP or mobile end-to-end result. A clean Jupyter kernel execution and an Android-to-Firebase-to-worker walkthrough have not been observed.
+The original inventory Docs are inaccessible to the connected account. No verified individual Office records or independently reviewed same-item links are available. The notebook's direct route-function call is not an HTTP or mobile end-to-end result. A clean Jupyter kernel execution remains pending. The current Android debug build and unit tests passed, but no device was connected; the configured `Medium_Phone` emulator exits because C: has insufficient free space. The real HTTP smoke verifies the service path, not Android runtime behavior.

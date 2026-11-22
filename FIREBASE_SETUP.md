@@ -5,11 +5,11 @@ and a separate worker using the shared TF-IDF and knowledge-agent pipeline.
 There is no CLIP, image inference, or vector database. Existing experiment scripts and results
 are not replaced. Photographs are viewed by their uploader and authorized staff only.
 
-Validation on 20 November 2026: the Android debug APK and unit tests pass; service role tests,
-the end-to-end Firebase emulator flow, and Firestore/Storage authorization tests pass. The APK
-was installed and launched on a Samsung Android device over wireless ADB. Verified live accounts
-have office and technical-admin claims, but those signed-in flows were not exercised on the device.
-A local API can be reached through ADB reverse during development; it is not a hosted service.
+Validation on 23 November 2026: the normal and emulator-configured Android debug APK builds and
+unit tests pass. The service suite, Firebase emulator flow, Firestore/Storage authorization tests
+and a real HTTP service-and-worker smoke pass. A current Android runtime walkthrough has not been
+observed: no device was connected, and the available emulator cannot start with the current free
+disk space. A local API is not a hosted service.
 
 The live project is `lost-and-found-9671c`. Email-link authentication and Firestore rules are
 configured. Firebase Console requires a billing upgrade before Storage can be initialized on
@@ -51,15 +51,19 @@ Both use `LocalDemo123!`. The seed script refuses non-emulator projects.
 The Emulator UI is at http://127.0.0.1:4000 and API docs at http://127.0.0.1:8000/docs.
 Emulator data is temporary unless you explicitly export/import it with Firebase CLI.
 
-Clone [MAD_project](https://github.com/luiz-zer0/MAD_project), open it in Android Studio, and run the debug
-build on an Android emulator. Without `firebase.properties`, debug connects to the host
-through `10.0.2.2`. The API/Auth/Storage ports are 8000/9099/9199. This configuration is
+Clone [MAD_project](https://github.com/luiz-zer0/MAD_project), open it in Android Studio, and run
+`./gradlew.bat -PdemoFirebase=true testDebugUnitTest assembleDebug` for the local demo. The flag
+forces the demo Firebase project and host API at `10.0.2.2`, even if `firebase.properties` exists.
+Without that file, a normal debug build also uses the demo project. The API/Auth/Storage ports are
+8000/9099/9199. This configuration is
 for the Android emulator; a physical device needs a deliberately configured development
 connection. Release builds never enable the emulator settings.
 
 1. Sign in as the office account and check in a found item.
 2. Sign out, sign in as the student, and submit a lost item in the same category.
 3. Refresh Reports after the worker runs, then review suggestions and request ownership review.
+   The app distinguishes pending, failed and complete-empty results and labels each score as
+   TF-IDF text similarity with the worker's explanation.
 4. Sign in as office staff, check the claim and report details, approve after verification,
    then mark collected only after physical handover. Both reports close together.
 
