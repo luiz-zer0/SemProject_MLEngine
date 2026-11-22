@@ -1,0 +1,28 @@
+lost_id,item_group_id,category,description,colour,brand,last_seen_location,date_lost,source_type,split
+l-g001,g001,plastic_water_bottle,I misplaced my transparent drink bottle; the top is bright orange,clear,,library,,ai_constructed_fictional,train
+l-g002,g002,metallic_bottle,Stainless steel water container; bottom has a small knock,silver,,cafeteria,,ai_constructed_fictional,train
+l-g003,g003,pencil_pouch,My dark blue stationery bag has a yellow zipper,navy,,msb,,ai_constructed_fictional,train
+l-g004,g004,usb_cable,Charging lead with a green tape mark; white and quite short,white,,library,,ai_constructed_fictional,train
+l-g005,g005,laptop_charger,Lost a Dell laptop brick; cable has worn insulation,black,Dell,msb,,ai_constructed_fictional,train
+l-g006,g006,mouse,Small cordless red mouse; rear battery lid is gone,red,,cafeteria,,ai_constructed_fictional,train
+l-g007,g007,sweater,My grey jersey has blue thread around the sleeves,grey,,library,,ai_constructed_fictional,train
+l-g008,g008,calculator,Missing Casio maths calculator; one corner of the casing is chipped,black,Casio,msb,,ai_constructed_fictional,train
+l-g009,g009,plastic_water_bottle,My violet drinking bottle had a mountain decal in white,purple,,library,,ai_constructed_fictional,validation
+l-g010,g010,metallic_bottle,Blue metal flask; paint is coming off around its mouth,blue,,msb,,ai_constructed_fictional,validation
+l-g011,g011,pencil_pouch,Lost a see through dark stationery case with a triangle zip tab,black,,cafeteria,,ai_constructed_fictional,validation
+l-g012,g012,usb_cable,My phone lead is woven and black with red covering at the plug,black,,library,,ai_constructed_fictional,validation
+l-g013,g013,laptop_charger,HP notebook power supply; grey brick and blue tipped plug,grey,HP,msb,,ai_constructed_fictional,validation
+l-g014,g014,headphones,My large white headphones have tape on one side,white,,cafeteria,,ai_constructed_fictional,validation
+l-g015,g015,umbrella,Pocket sized yellow rain umbrella; handle is crooked,yellow,,library,,ai_constructed_fictional,validation
+l-g016,g016,spectacle_case,Lost my green rigid eyewear box; the latch is scraped,green,,msb,,ai_constructed_fictional,validation
+l-g017,g017,plastic_water_bottle,Missing green water container with a dark strap on the cap,green,,cafeteria,,ai_constructed_fictional,test
+l-g018,g018,metallic_bottle,My black insulated bottle has a shiny metal bottom,black,,library,,ai_constructed_fictional,test
+l-g019,g019,pencil_pouch,Stationery pouch with pink lines; zipper does not close,pink,,msb,,ai_constructed_fictional,test
+l-g020,g020,usb_cable,Old style blue phone charging lead tied close to the connector,blue,,cafeteria,,ai_constructed_fictional,test
+l-g021,g021,laptop_charger,Lost a Lenovo laptop power brick; wire has a small cut,black,Lenovo,library,,ai_constructed_fictional,test
+l-g022,g022,mouse,My Logitech computer pointer is silver and has a violet label,silver,Logitech,msb,,ai_constructed_fictional,test
+l-g023,g023,calculator,Casio maths device in blue; one button cap has fallen off,blue,Casio,cafeteria,,ai_constructed_fictional,test
+l-g024,g024,spectacles,Missing circular dark frames; right temple wobbles,black,,library,,ai_constructed_fictional,test
+nm001,nm001,scarf,Orange scarf with embroidered swan,orange,,msb,,ai_constructed_fictional,validation
+nm002,nm002,watch,Gold watch with cracked face,gold,,library,,ai_constructed_fictional,test
+nm003,nm003,umbrella,Large teal umbrella with wooden handle,teal,,cafeteria,,ai_constructed_fictional,test

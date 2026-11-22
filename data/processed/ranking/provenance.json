@@ -1,0 +1,14 @@
+{
+  "inventory_quantities": {
+    "2026-06_07": 388,
+    "2026-08": 299
+  },
+  "found_records": 24,
+  "lost_reports": 27,
+  "controlled_positive_labels": 24,
+  "controlled_negative_labels": 168,
+  "no_match_queries": 3,
+  "candidate_pool_size": 24,
+  "source_type": "AI-authored fictional controlled examples",
+  "review": "Independent student review pending; no genuine same-item labels or campus performance."
+}
