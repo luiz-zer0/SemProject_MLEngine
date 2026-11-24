@@ -147,3 +147,17 @@ Official references: https://firebase.google.com/docs/android/setup,
 https://firebase.google.com/docs/auth/admin/verify-id-tokens,
 https://firebase.google.com/docs/emulator-suite/connect_auth,
 https://firebase.google.com/docs/emulator-suite/connect_firestore.
+
+
+## Report submission diagnostics
+
+The screenshot message "Couldn't submit the report. Your draft is saved on this device." is from an older Android build and does not identify the actual HTTP/network error. The production backend is not documented as deployed. Run the authenticated service, not the standalone preview. Check the following endpoints on the configured API host:
+
+- GET /health: service identity must be authenticated_reports (not synthetic_preview).
+- GET /ready: verifies a bounded read from Firestore; HTTP 503 means credentials, database or configuration are unavailable. It does not prove worker execution.
+- GET /v1/me with a valid user token: verifies the authenticated account and server-assigned role. A technical admin cannot check in found items; use office_staff.
+
+See docs/submission_recovery.md for phone configuration, safe retry and deployment steps. New probes must be tested before claiming production readiness.
+
+
+For the hosted setup, see [deployment instructions](docs/DEPLOYMENT.md) and the root render.yaml blueprint. The worker requires a continuously running service; approve any hosting charges before provisioning. Credentials must be entered in a secure hosting secret store. No deployment is confirmed by these files alone.

@@ -23,3 +23,5 @@ service-tests.log
 firebase/*debug.log
 firebase/node_modules/
 firebase/.firebase/
+
+.env.cloudflare

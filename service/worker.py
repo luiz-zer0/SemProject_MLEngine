@@ -90,14 +90,22 @@ def main():
     logging.basicConfig(level=logging.INFO)
     matcher = TfidfMatcher()
     client = db()
+    interval = max(3.0, float(os.environ.get("WORKER_POLL_SECONDS", "15" if os.environ.get("APP_ENV") != "emulator" else "3")))
+    backoff = interval
     while True:
-        for status in ("pending", "running"):
-            query = client.collection("matching_jobs").where(filter=firestore.FieldFilter("status", "==", status))
-            for snapshot in query.limit(50).stream():
-                process_job(client, snapshot.reference, matcher)
-        if os.environ.get("APP_ENV") != "emulator":
-            deliver_push(client)
-        time.sleep(3)
+        try:
+            for status in ("pending", "running"):
+                query = client.collection("matching_jobs").where(filter=firestore.FieldFilter("status", "==", status))
+                for snapshot in query.limit(50).stream():
+                    process_job(client, snapshot.reference, matcher)
+            if os.environ.get("APP_ENV") != "emulator":
+                deliver_push(client)
+            backoff = interval
+        except Exception as error:
+            # Back off on temporary database/network outages; leases allow recovery.
+            log.warning("Worker polling failed: %s", type(error).__name__)
+            backoff = min(max(backoff * 2, interval), max(60, interval))
+        time.sleep(backoff)
 
 
 def deliver_push(client):
