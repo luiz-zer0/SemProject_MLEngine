@@ -124,3 +124,32 @@ def test_only_admin_can_manage_roles():
         assert client.put("/v1/admin/accounts/other/role", json={"role": "admin"}).status_code == 403
     finally:
         app.dependency_overrides.clear()
+
+
+def test_health_identifies_authenticated_service():
+    response = TestClient(app).get("/health")
+    assert response.json()["service"] == "authenticated_reports"
+
+
+def test_readiness_reports_firestore_failure(monkeypatch):
+    from fastapi import HTTPException
+    from service import api
+
+    def unavailable():
+        raise HTTPException(503, "not configured")
+
+    monkeypatch.setattr(api, "db", unavailable)
+    response = TestClient(app).get("/ready")
+    assert response.status_code == 503
+    assert response.json()["firestore"] == "unavailable"
+
+
+def test_firebase_configuration_failure_is_not_invalid_login(monkeypatch):
+    from service import runtime
+    runtime.firebase_app.cache_clear()
+    monkeypatch.delenv("FIREBASE_PROJECT_ID", raising=False)
+    try:
+        response = TestClient(app).get("/v1/me", headers={"Authorization": "Bearer sample-token"})
+        assert response.status_code == 503
+    finally:
+        runtime.firebase_app.cache_clear()

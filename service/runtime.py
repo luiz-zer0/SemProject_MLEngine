@@ -1,13 +1,17 @@
 import os
+import logging
 from functools import lru_cache
 
 import firebase_admin
 from firebase_admin import auth, firestore, credentials
 from google.auth.credentials import AnonymousCredentials
+from google.auth.exceptions import DefaultCredentialsError
+from firebase_admin import exceptions as firebase_exceptions
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 bearer = HTTPBearer(auto_error=False)
+log = logging.getLogger(__name__)
 
 
 class EmulatorCredentials(credentials.Base):
@@ -30,17 +34,34 @@ def firebase_app():
                                          options={"projectId": project})
 
 
+def configured_app():
+    # Infrastructure errors must not be reported as invalid user credentials.
+    try:
+        return firebase_app()
+    except (RuntimeError, ValueError, DefaultCredentialsError, firebase_exceptions.FirebaseError):
+        log.exception("Firebase service initialization failed")
+        raise HTTPException(503, "Report service Firebase configuration unavailable") from None
+
+
 def db():
-    return firestore.client(app=firebase_app())
+    try:
+        return firestore.client(app=configured_app())
+    except (ValueError, DefaultCredentialsError, firebase_exceptions.FirebaseError):
+        log.exception("Firestore client initialization failed")
+        raise HTTPException(503, "Report database unavailable") from None
 
 
 def identity(credentials: HTTPAuthorizationCredentials = Depends(bearer)):
     if credentials is None:
         raise HTTPException(401, "Sign in first")
+    app = configured_app()
     try:
-        token = auth.verify_id_token(credentials.credentials, app=firebase_app(), check_revoked=True)
-    except Exception:
+        token = auth.verify_id_token(credentials.credentials, app=app, check_revoked=True)
+    except (auth.InvalidIdTokenError, auth.ExpiredIdTokenError, auth.RevokedIdTokenError, auth.UserDisabledError, auth.UserNotFoundError, ValueError):
         raise HTTPException(401, "Invalid or expired sign-in") from None
+    except (firebase_exceptions.FirebaseError, DefaultCredentialsError):
+        log.exception("Firebase token verification service unavailable")
+        raise HTTPException(503, "Sign-in verification service unavailable; retry later") from None
     if not token.get("email_verified"):
         raise HTTPException(403, "Verify your email before using reports")
     if not token.get("email", "").lower().endswith("@strathmore.edu"):

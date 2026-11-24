@@ -1,6 +1,7 @@
 """Authenticated report persistence and staff-reviewed matching API."""
 import hashlib
 import json
+import logging
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Literal
@@ -13,6 +14,11 @@ from google.cloud import firestore
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .runtime import db, firebase_app, identity, staff
+from google.api_core.exceptions import GoogleAPICallError
+from google.auth.exceptions import GoogleAuthError
+from fastapi.responses import JSONResponse
+
+log = logging.getLogger(__name__)
 
 CATALOG = json.loads((Path(__file__).parent / "catalog.json").read_text())
 app = FastAPI(title="Strathmore Lost & Found", version="1.0.0")
@@ -164,7 +170,27 @@ def unclaimed_items(user=Depends(identity), client=Depends(db)):
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "matching": "separate durable worker"}
+    return {"status": "ok", "service": "authenticated_reports", "matching": "separate durable worker"}
+
+
+@app.get("/ready")
+def ready():
+    """Read-only readiness probe; no records or credentials are exposed."""
+    try:
+        # An actual read verifies credentials and Firestore availability, not worker execution.
+        client = db()
+        list(client.collection("matching_jobs").limit(1).stream(timeout=5))
+    except (HTTPException, GoogleAPICallError, GoogleAuthError, RuntimeError, ValueError):
+        log.warning("Report service readiness check failed")
+        return JSONResponse(status_code=503, content={"status": "unavailable", "service": "authenticated_reports", "firestore": "unavailable"})
+    return {"status": "ready", "service": "authenticated_reports", "firestore": "reachable"}
+
+
+@app.exception_handler(GoogleAPICallError)
+@app.exception_handler(GoogleAuthError)
+async def database_unavailable(_request, _error):
+    log.warning("Report service upstream request failed: %s", type(_error).__name__)
+    return JSONResponse(status_code=503, content={"detail": "Report database temporarily unavailable; retry the same request."})
 
 
 @app.get("/v1/me")
