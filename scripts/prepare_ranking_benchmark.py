@@ -16,15 +16,16 @@ def read(name):
         return list(csv.DictReader(stream))
 
 
-def write(name, fields, rows):
-    OUTPUT.mkdir(parents=True, exist_ok=True)
-    with (OUTPUT / name).open("w", encoding="utf-8", newline="") as stream:
+def write(output_dir, name, fields, rows):
+    output_dir.mkdir(parents=True, exist_ok=True)
+    with (output_dir / name).open("w", encoding="utf-8", newline="") as stream:
         writer = csv.DictWriter(stream, fieldnames=fields)
         writer.writeheader()
         writer.writerows(rows)
 
 
-def main():
+def main(output_dir=OUTPUT):
+    output_dir = Path(output_dir)
     items = read("controlled_items.csv")
     absent = read("no_match_queries.csv")
     if len({item["item_group_id"] for item in items}) != len(items):
@@ -68,17 +69,17 @@ def main():
                          split=row["split"]))
         queries.append(dict(query_id=f"q-{row['lost_id']}", lost_id=row["lost_id"], relevant_found_ids="",
                             candidate_pool_id="all_constructed_found_v1", has_match=0, split=row["split"]))
-    write("found_reports.csv", list(found[0]), found)
-    write("lost_reports.csv", list(lost[0]), lost)
-    write("match_labels.csv", list(labels[0]), labels)
-    write("evaluation_queries.csv", list(queries[0]), queries)
-    (OUTPUT / "candidate_pools.json").write_text(json.dumps({"all_constructed_found_v1": [r["found_id"] for r in found]}, indent=2) + "\n", encoding="utf-8")
+    write(output_dir, "found_reports.csv", list(found[0]), found)
+    write(output_dir, "lost_reports.csv", list(lost[0]), lost)
+    write(output_dir, "match_labels.csv", list(labels[0]), labels)
+    write(output_dir, "evaluation_queries.csv", list(queries[0]), queries)
+    (output_dir / "candidate_pools.json").write_text(json.dumps({"all_constructed_found_v1": [r["found_id"] for r in found]}, indent=2) + "\n", encoding="utf-8")
     audit = {"inventory_quantities": dict(quantities), "found_records": len(found),
              "lost_reports": len(lost), "controlled_positive_labels": len(items),
              "controlled_negative_labels": len(labels) - len(items), "no_match_queries": len(absent),
              "candidate_pool_size": len(found), "source_type": "AI-authored fictional controlled examples",
              "review": "Independent student review pending; no genuine same-item labels or campus performance."}
-    (OUTPUT / "provenance.json").write_text(json.dumps(audit, indent=2) + "\n", encoding="utf-8")
+    (output_dir / "provenance.json").write_text(json.dumps(audit, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(audit, indent=2))
 
 
