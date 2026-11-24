@@ -18,3 +18,7 @@ The root render.yaml defines an HTTPS web API running service.api:app and a sepa
 PowerShell: Invoke-RestMethod https://<verified-api-host>/health ; Invoke-RestMethod https://<verified-api-host>/ready . Do not use the literal placeholder. Review provider logs and run the emulator regression tests described in FIREBASE_SETUP.md before production verification.
 
 References: https://render.com/docs/blueprint-spec ; https://render.com/docs/background-workers ; https://render.com/pricing ; https://firebase.google.com/docs/admin/setup .
+
+## Alternative: Cloudflare Tunnel on an existing authorized host
+
+See [Cloudflare deployment](CLOUDFLARE_DEPLOYMENT.md) and compose.cloudflare.yaml. This option avoids a new Render background-worker subscription if suitable compute is already available; it does not provide free compute or a verified live endpoint.
