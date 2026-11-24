@@ -19,7 +19,7 @@ Review date: 24 November 2026. This is a technical review for the team to inspec
 | Invalid input | PARTIAL end to end | Preview API tests reject blank/invalid input and obvious private-data patterns with redacted errors. | Demonstrate safe form feedback in the Android app and authenticated service, including empty text, invalid dates, and no inventory. |
 | Mobile integration | PARTIAL | Android branch `codex/mobile-nlp-results` calls the authenticated `/v1` report, match, claim, and admin routes. Its report fields and category/location IDs match the MLEngine API and shared catalog. | A current phone/emulator-to-Firebase-to-worker walkthrough has not been verified. Run it and capture evidence before claiming end-to-end operation. |
 | Notebook completeness | PARTIAL | `NLP_Final.ipynb` has 16 cells covering sources, preparation, baseline, TF-IDF, hybrid evaluation, explanations, preview call, and limitations. A fresh kernel executed all 16 cells with no cell error outputs, but the driver exited with status 1 during kernel shutdown and emitted profile-permission warnings. | Rerun in a clean Jupyter environment and confirm a zero exit status. The student team must independently review and approve the content. |
-| Repository organization | PARTIAL | The repository preserves the baseline, source/provenance notes, service, tests, and evaluation evidence. `docs/cleanup_manifest.md` records non-destructive recommendations. | Review the manifest before any move or removal. No files have been deleted or archived. |
+| Repository organization | PARTIAL | The repository preserves the baseline, source/provenance notes, service, tests, and evaluation evidence. Historical handoff notes are being reduced while current setup, source, API, and benchmark references remain. | Keep source provenance and operational setup documentation available; complete the agreed document cleanup without removing project data or code. |
 | Presentation | PARTIAL | Synthetic cases, evaluation evidence, and a demo handoff exist. | Rehearse a 3–6 minute demonstration in the actual Android app with all team members; the mobile walkthrough remains unverified. |
 | CLIP / image inference | PASS for the stated scope | The final engine does not use CLIP or image embeddings. | Keep image matching out of the final claims unless paired, permitted data and measured results are later produced. |
 
@@ -39,7 +39,7 @@ These are results on AI-authored controlled fiction. The perfect attribute and h
 
 ## C. Repository cleanup
 
-See [the file-by-file cleanup manifest](cleanup_manifest.md). The unique Friday run transcript was moved intact to `results/archive/friday_run.txt`; generated-cache cleanup was unnecessary because the listed cache was absent. Other source-dependent items remain preserved pending provenance review. Nothing was deleted.
+The cleanup review preserved the unique Friday run transcript intact at `results/archive/friday_run.txt`. Source-dependent Delhi outputs and local model data remain in place pending provenance review. A later documentation cleanup removed six completed or superseded Markdown handoff notes; project source and data were not removed.
 
 ## D. Notebook review
 
@@ -85,4 +85,4 @@ The current engine worker uses `TfidfMatcher` and the shared knowledge-agent pip
 - The notebook runner previously executed 16 cells with no cell error outputs, but exited with status 1 during teardown. A further isolated-kernel attempt did not complete. Clean-kernel acceptance remains open.
 - The ranking dataset validator and benchmark evaluator were rerun successfully on 24 November 2026; the fixture still contains 24 found records, 27 queries, and 192 constructed labels.
 - No Android-to-Firebase-to-worker walkthrough, real matched-pair evaluation, or independently verified institutional data was observed in this audit.
-- No CLIP/image model was added, no files were deleted, and the untracked MLEngine `work/` directory was left untouched.
+- No CLIP/image model was added. Only the six completed/historical Markdown handoff files listed in this cleanup change were removed; project data, source, and the untracked MLEngine `work/` directory were left untouched.

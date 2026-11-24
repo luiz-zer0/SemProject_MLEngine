@@ -4,7 +4,7 @@
 
 The transcribed Office inventory category quantities are in `data/raw/campus/office_inventory_aggregate.csv` (388 June–July plus 299 August quantities). The linked original Google Docs were inaccessible to the connected account; the transcription still needs source verification. These aggregate counts are not individual reports. A separate AI-authored, controlled fictional exercise lives under `data/fixtures/ranking/`, with its generated four-table dataset under `data/processed/ranking/`. Independent student review of the examples and labels is pending.
 
-The current technical review is in [the Deliverable 3 audit](docs/deliverable3_audit.md); the [cleanup manifest](docs/cleanup_manifest.md) is a proposal only. No files have been removed or archived.
+The remaining Deliverable 3 verification items are recorded in [the current technical audit](docs/deliverable3_audit.md).
 
 From the repository root, after installing `requirements.txt`:
 
@@ -133,7 +133,7 @@ To reproduce the Delhi notebook, obtain the raw CSV as described in [dataset sou
 
 Review the fixture labels and demo errors, validate the intake contract with permitted real reports and verified pairs, and test the full path before a field pilot. For Deliverable 3, a local mobile client can call the synthetic preview with invented sample inputs; real-report use still requires persistence, authentication and reviewed data handling. Keep every output framed as a possible-match suggestion requiring staff verification. See [team contributions](docs/contributions.md) for the repository history.
 
-The [Deliverable 3 readiness review and dated team plan](docs/deliverable3_readiness.md) covers the required mobile demo and final notebook. The authenticated service worker uses `TfidfMatcher` and the same NLP/knowledge-agent pipeline. The separate `Matcher` classifier adapter remains in `service/inference.py` for legacy use but is not used by the API or worker entry points. CLIP is outside the current text-only engine: there is no evaluated CLIP result or paired image dataset in this repository.
+The authenticated service worker uses `TfidfMatcher` and the same NLP/knowledge-agent pipeline. The separate `Matcher` classifier adapter remains in `service/inference.py` for legacy use but is not used by the API or worker entry points. CLIP is outside the current text-only engine: there is no evaluated CLIP result or paired image dataset in this repository.
 
 ## Mobile Firebase integration
 
