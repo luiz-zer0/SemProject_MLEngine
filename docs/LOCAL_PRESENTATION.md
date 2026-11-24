@@ -1,8 +1,8 @@
 # Free local presentation — Windows
-No deployment, Firebase cloud credentials or billing upgrade required. This runs the real authenticated FastAPI service, Firestore/Auth emulators and operational NLP worker. All records and accounts are fictional. The optional cloud deployment configuration is retained on main but not required.
+No deployment, Firebase cloud credentials or billing upgrade required. This runs the real authenticated FastAPI service, Firestore/Auth emulators and operational NLP worker. All records and accounts are fictional. Hosted deployment files are retired from the active checkout; they are not required for this presentation.
 
 ## One-time preparation and startup
-Use Python 3.12, Node.js compatible with the pinned Firebase CLI, and Java 21 (Android Studio JBR). From the ML repository root:
+Use Python 3.12, Node.js 22 (compatible with the pinned Firebase CLI), and Java 21 (Android Studio JBR). From the ML repository root:
     powershell -ExecutionPolicy Bypass -File scripts/start_presentation.ps1 -Install
 On later runs omit -Install. Install/download dependencies and emulator binaries before presentation day. Close previously started demo windows before restarting. The script checks occupied ports instead of killing processes; it launches three service windows, seeds accounts and two fictional found chargers, submits two fictional lost reports through the authenticated API, verifies actual ranked results/explanations, and checks invalid input rejection. Keep the windows open. The smoke test is not a substitute for testing the phone.
 

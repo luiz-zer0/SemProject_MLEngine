@@ -64,7 +64,7 @@ Both commands read the same included fixture and report found-record and vocabul
 | New found item after process startup | Not indexed until `replace_inventory` or process restart | Rebuild before relying on the preview. |
 | Embedded personal data in free text | Preview rejects some obvious email, phone-like and labeled-ID patterns; loader and vectorizer do not screen arbitrary text | Remove it during authorized intake review; the API pattern guard is not a substitute and unreviewed real data must not be used. |
 
-Run `python -m unittest discover -s tests -p "test_*.py"` and `python -m scripts.demo_matching_pipeline` for the synthetic checks. The current ranking benchmark and its limits are in `docs/model_evaluation.md`. Real-data Recall@5 and MRR@5 remain pending verified same-item labels and a grouped holdout.
+Run `python -m pytest tests -q` and `python -m scripts.demo_matching_pipeline` for the synthetic checks. The current ranking benchmark and its limits are in `docs/model_evaluation.md`. Real-data Recall@5 and MRR@5 remain pending verified same-item labels and a grouped holdout.
 
 ---
 
@@ -274,7 +274,7 @@ for corpus and retrieval limits.
 Run the API and all repository tests from the project root:
 
 ```powershell
-python -m unittest discover -s tests -p "test_*.py" -v
+python -m pytest tests -q
 ```
 
 The focused HTTP tests cover valid previews, empty lexical results, agreement,
