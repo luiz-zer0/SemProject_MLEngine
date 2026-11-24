@@ -2,7 +2,7 @@
 
 ## Inventory-informed fictional benchmark (23 November 2026)
 
-The transcribed Office inventory category quantities are in `data/raw/campus/office_inventory_aggregate.csv` (388 June–July plus 299 August quantities). The linked original Google Docs were inaccessible to the connected account; the transcription still needs source verification. These aggregate counts are not individual reports. A separate AI-authored, controlled fictional exercise lives under `data/fixtures/ranking/`, with its generated four-table dataset under `data/processed/ranking/`. Independent student review of the examples and labels is pending.
+The user-provided Office inventory transcription is in `data/raw/campus/office_inventory_aggregate.csv` (388 June–July plus 299 August quantities). Original wording and normalized names are both retained; the blank June–July umbrella disposal field remains blank. Verify the transcription against the office source. These aggregate counts are not individual reports or match labels. The notebook profiles them separately from the controlled fictional matching benchmark under `data/fixtures/ranking/`. Independent student review of the examples and labels is pending.
 
 The remaining Deliverable 3 verification items are recorded in [the current technical audit](docs/deliverable3_audit.md). See the [documentation index](docs/README.md) for the project guides.
 
