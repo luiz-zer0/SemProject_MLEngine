@@ -6,7 +6,7 @@
 - The Office inventory transcription has 57 aggregate category rows and 687 quantities. The two linked Google Docs returned permission denied, so the transcription needs source verification.
 - The new controlled-fiction dataset builds 24 found records, 27 lost queries, 24 positive labels, 168 negative labels, three no-match queries and one fixed 24-item pool. The structural validator passes. Descriptions were AI authored and need independent team review.
 - `results/ranking_benchmark.json` contains the measured comparison. Eight matched and two no-match test queries were evaluated. The perfect structured-feature scores are caused by shared attributes in the constructed pairs, and the no-match checks still produce false strong suggestions. These are not real-campus accuracy results.
-- `notebooks/TFIDF_Final.ipynb` presents data provenance, grouped preparation, the preserved classifier baseline, TF-IDF and cosine similarity, hybrid validation, measured metrics, explanations and a direct local preview-route call. It was executed in one Python process; a clean Jupyter kernel run and team review remain pending.
+- `notebooks/NLP_Final.ipynb` presents data provenance, grouped preparation, the preserved classifier baseline, TF-IDF and cosine similarity, hybrid validation, measured metrics, explanations and a direct local preview-route call. It was executed in one Python process; a clean Jupyter kernel run and team review remain pending.
 - The authenticated FastAPI service and Firestore worker exist in this repository; the worker calls the NLP pipeline. The companion Android application has report and match screens, but no current phone-to-service run was observed in this task.
 
 ## Three-developer review and demo ownership

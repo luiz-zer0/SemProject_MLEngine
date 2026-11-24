@@ -1,12 +1,12 @@
 # Repository cleanup manifest
 
-Review date: 24 November 2026. This is a proposal only. No files have been deleted, moved, or archived. The Deliverable 3 task requires the team to review this manifest before any cleanup branch or removal. `work/` is untracked user data and was not inspected or included.
+Review date: 24 November 2026. This manifest records both recommendations and completed, non-destructive archive work. The unique `results/friday_run.txt` transcript was moved intact to `results/archive/friday_run.txt`; no files were deleted. `work/` is untracked user data and was not inspected or included.
 
 | File or folder | Purpose / references | Action | Reason |
 | --- | --- | --- | --- |
 | `notebooks/LogisticRegression_Base.ipynb` | Prior coursework classifier baseline; referenced by README and audit docs. | KEEP | The task explicitly requires a baseline. Do not remove as “old” without team approval. |
 | `matching_system/ml_model.py` | Logistic Regression implementation used by the preserved baseline. | KEEP | Required for the baseline and its reproducible comparison. |
-| `scripts/export_mobile_model.py` | Exports the legacy supervised model artifact. | INVESTIGATE | The active Firestore worker uses TF-IDF, but the script may support baseline/development workflows. Check references before considering removal. |
+| `scripts/export_mobile_model.py` | Standalone exporter for the legacy supervised model artifact; no runtime consumer found. | KEEP | Retain as an optional baseline/coursework utility. It is separate from the active TF-IDF worker; do not present its artifact as the runtime model. |
 | `results/campus_baseline/coefficients.csv` | Saved baseline coefficients. | KEEP | Assessment and reproducibility evidence for the prior model. |
 | `results/campus_baseline/test_predictions.csv` | Saved baseline predictions. | KEEP | Evidence for prior baseline evaluation. |
 | `results/campus_baseline/validation_metrics.json` | Baseline metrics and validation record. | KEEP | Required to compare the baseline; retain its synthetic-label caveat. |
@@ -25,7 +25,7 @@ Review date: 24 November 2026. This is a proposal only. No files have been delet
 | `results/day2_synthetic_evaluation.json` | Earlier synthetic ranking evaluation. | KEEP | Historical evidence used by later comparisons and handoffs. |
 | `results/day3_api_evidence.json` | Recorded local preview API responses and checks. | KEEP | Evidence for preview validation; it is not a live Firebase/mobile result. |
 | `results/friday_demo_evidence.json` | Later recorded synthetic demo responses. | KEEP | Handoff evidence. Compare against Day 3 before treating as redundant. |
-| `results/friday_run.txt` | Console transcript from a synthetic run. | ARCHIVE | Likely overlaps structured JSON evidence; archive only after checking that it contains no unique test results. Do not remove now. |
+| `results/archive/friday_run.txt` | Archived console transcript from a synthetic run. | ARCHIVE | Preserved intact after review. It records a prior 37-test run and demo assertions not fully represented in the structured evidence, so it remains available as historical evidence. |
 | `results/figures/categories.png` | Generated campus-data visualization. | KEEP | Existing notebook/report output; confirm its source and regenerate path before replacing. |
 | `results/figures/missing_fields.png` | Generated campus-data visualization. | KEEP | Existing notebook/report output; preserve pending reproducibility review. |
 | `results/figures/pair_labels.png` | Generated campus-data visualization. | KEEP | Supports baseline/data understanding; labels are designed, not verified. |
@@ -35,7 +35,7 @@ Review date: 24 November 2026. This is a proposal only. No files have been delet
 | `results/figures/delhi_monthly.png` | Generated from the separate Delhi found-item source. | INVESTIGATE | Keep until the Delhi source and clean regeneration are available. |
 | `results/figures/delhi_stations.png` | Generated from the separate Delhi found-item source. | INVESTIGATE | Keep until the Delhi source and clean regeneration are available. |
 | `data/processed/delhi_preprocessing_report.json` | Non-sensitive preprocessing summary for the separately downloaded Delhi source. | KEEP | Useful provenance evidence. Confirm the source file and script still reproduce it. |
-| `data/processed/modelling_pairs.csv` | Generated constructed-pair data from an earlier experiment. | INVESTIGATE | It may be reproducible from the unavailable Delhi download. Preserve until the source and consumer references are confirmed. |
+| `data/processed/modelling_pairs.csv` | Locally present generated constructed-pair data used by `tests/test_model.py`, `scripts/run_model.py`, and the export utility; ignored and absent from Git. | INVESTIGATE | Preserve local data. Its Delhi source is absent from this checkout and the generated rows may include source descriptions; do not add it to Git. Reproduce only after confirming source access and terms. |
 | `data/processed/synthetic_campus_reports.csv` | Generated repair/cleaning output for the retained synthetic campus source. | KEEP | Used by the earlier baseline workflow and described in the data documentation. |
 | `docs/deliverable3_readiness.md` | Dated 17 November readiness snapshot and work plan. | KEEP | Historical status is useful, but it predates the current implementation; read with this audit, not as current status. |
 | `docs/deliverable3_2026-11-23_checklist.md` | Dated handoff, blockers, and demo ownership. | KEEP | Contains important remaining work and source-review limitations. |
@@ -50,8 +50,8 @@ Review date: 24 November 2026. This is a proposal only. No files have been delet
 | `docs/nlp_day1_handoff.md` | NLP module boundary and integration notes. | KEEP | Useful interface documentation; supersede only after reference review. |
 | `docs/contributions.md` | Repository contribution provenance. | KEEP | Helps avoid misattributing earlier work. |
 | `docs/dataset_sources.md` | Data source, licensing, and provenance record. | KEEP | Required for public repository suitability. |
-| `docs/__pycache__/` | Ignored local Python bytecode cache, if present. | REMOVE | Re-creatable generated cache, not part of the tracked project. Leave untouched until the team approves cleanup. |
+| `docs/__pycache__/` | Ignored local Python bytecode cache. | REMOVE | Not present during this review; no cleanup action was needed. |
 
 ## Approval gate
 
-Before any ARCHIVE or REMOVE action, the team should review the named item, confirm that no notebook, script, test, presentation, or provenance record depends on it, and approve the exact change. Then create a separate cleanup branch and verify the project from a fresh checkout. No such cleanup branch or removal has been made.
+Before any additional ARCHIVE or REMOVE action, the team should review the named item, confirm that no notebook, script, test, presentation, or provenance record depends on it, and approve the exact change. The Friday transcript archive preserves its contents; no destructive cleanup or cleanup branch was needed. `work/` remains untouched.

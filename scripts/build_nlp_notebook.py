@@ -15,7 +15,7 @@ def code(text):
 
 
 cells = [
-    markdown("# TF-IDF Final: lost-item candidate ranking\n\nThis notebook demonstrates a reproducible **fictional** Strathmore-themed exercise. A lost report is compared with a pool of found reports and the system returns candidates for staff review. A score does not verify ownership or authorize release. The 2026 office inventories supply aggregate category counts only; none of the individual records below came from those inventories."),
+    markdown("# NLP Final: TF-IDF lost-item candidate ranking\n\nThis notebook demonstrates a reproducible **fictional** Strathmore-themed exercise. A lost report is compared with a pool of found reports and the system returns candidates for staff review. A score does not verify ownership or authorize release. The 2026 office inventories supply aggregate category counts only; none of the individual records below came from those inventories."),
     markdown("## 1. Sources and dataset\n\nThe user transcribed two Office category tables. Their quantities total 388 for June–July and 299 for August. The linked original Google Docs were inaccessible to the connected account, so the transcription still needs checking against them. The controlled lost and found descriptions below were AI authored as fictional development examples; independent team review is pending."),
     code("from pathlib import Path\nfrom tempfile import TemporaryDirectory\nimport csv, json\nROOT = Path.cwd()\nassert (ROOT / 'scripts/prepare_ranking_benchmark.py').exists(), 'Run from repository root'\nfrom scripts.prepare_ranking_benchmark import main as prepare\nfrom scripts.validate_ranking_dataset import validate\n_NOTEBOOK_TMP = TemporaryDirectory(prefix='nlp-ranking-')\nRUN_DIR = Path(_NOTEBOOK_TMP.name)\nDATA = RUN_DIR / 'ranking'\nprepare(DATA)\naudit = validate(DATA)\nassert audit['valid'], audit['errors']\nprint(json.dumps(audit, indent=2))"),
     markdown("## 2. Preparation and leakage control\n\nEach controlled item has one found record and a separately worded lost claim. Labels use the controlled item-group ID. Training, validation and test groups are disjoint; no pair is randomly split. No-match queries have no relevant found ID. The fixed candidate pool contains all 24 fictional found records."),
@@ -38,5 +38,5 @@ for index, cell in enumerate(cells):
 
 notebook = {"cells": cells, "metadata": {"kernelspec": {"display_name": "Python 3.12", "language": "python", "name": "python3"},
                                   "language_info": {"name": "python", "version": "3.12"}}, "nbformat": 4, "nbformat_minor": 5}
-(ROOT / "notebooks" / "TFIDF_Final.ipynb").write_text(json.dumps(notebook, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-print("Wrote notebooks/TFIDF_Final.ipynb")
+(ROOT / "notebooks" / "NLP_Final.ipynb").write_text(json.dumps(notebook, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+print("Wrote notebooks/NLP_Final.ipynb")
