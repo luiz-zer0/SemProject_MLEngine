@@ -1,5 +1,6 @@
 import os
 import logging
+import json
 from functools import lru_cache
 
 import firebase_admin
@@ -30,8 +31,21 @@ def firebase_app():
         raise RuntimeError("Emulators require a demo- project and both emulator hosts")
     if not emulator and (any(hosts) or project.startswith("demo-")):
         raise RuntimeError("Emulator settings forbidden outside APP_ENV=emulator")
-    return firebase_admin.initialize_app(credential=EmulatorCredentials() if emulator else None,
-                                         options={"projectId": project})
+    credential = EmulatorCredentials() if emulator else None
+    # Hosted services may supply a dedicated service account via the host's secret store.
+    # Google Cloud deployments can instead use application default credentials.
+    secret = os.environ.get("FIREBASE_ADMIN_CREDENTIALS_JSON", "")
+    if emulator and secret:
+        raise RuntimeError("Production credentials are forbidden in emulator mode")
+    if secret:
+        try:
+            info = json.loads(secret)
+            if not isinstance(info, dict) or info.get("project_id") != project:
+                raise ValueError("Wrong service account project")
+            credential = credentials.Certificate(info)
+        except (ValueError, TypeError, KeyError):
+            raise RuntimeError("Invalid Firebase deployment credentials") from None
+    return firebase_admin.initialize_app(credential=credential, options={"projectId": project})
 
 
 def configured_app():
@@ -39,7 +53,7 @@ def configured_app():
     try:
         return firebase_app()
     except (RuntimeError, ValueError, DefaultCredentialsError, firebase_exceptions.FirebaseError):
-        log.exception("Firebase service initialization failed")
+        log.error("Firebase service initialization failed")
         raise HTTPException(503, "Report service Firebase configuration unavailable") from None
 
 

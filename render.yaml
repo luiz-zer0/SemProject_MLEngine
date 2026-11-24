@@ -1,0 +1,40 @@
+# Review pricing and authorize charges before creating either service.
+# Supply Firebase credential JSON only through Render's encrypted secret settings.
+services:
+  - type: web
+    name: strathmore-lost-found-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerCommand: uvicorn service.api:app --host 0.0.0.0 --port 8000
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: FIREBASE_PROJECT_ID
+        value: lost-and-found-9671c
+      - key: FIREBASE_ADMIN_CREDENTIALS_JSON
+        sync: false
+      - key: OPENBLAS_NUM_THREADS
+        value: "1"
+      - key: OMP_NUM_THREADS
+        value: "1"
+  - type: worker
+    name: strathmore-lost-found-worker
+    runtime: docker
+    plan: 0.5c-512mb
+    dockerfilePath: ./Dockerfile
+    dockerCommand: python -m service.worker
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: FIREBASE_PROJECT_ID
+        value: lost-and-found-9671c
+      - key: FIREBASE_ADMIN_CREDENTIALS_JSON
+        sync: false
+      - key: WORKER_POLL_SECONDS
+        value: "15"
+      - key: OPENBLAS_NUM_THREADS
+        value: "1"
+      - key: OMP_NUM_THREADS
+        value: "1"

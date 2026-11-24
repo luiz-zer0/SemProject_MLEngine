@@ -139,6 +139,7 @@ def test_readiness_reports_firestore_failure(monkeypatch):
         raise HTTPException(503, "not configured")
 
     monkeypatch.setattr(api, "db", unavailable)
+    monkeypatch.setattr(api, "_readiness_cache", {"until": 0.0, "ready": False})
     response = TestClient(app).get("/ready")
     assert response.status_code == 503
     assert response.json()["firestore"] == "unavailable"
@@ -148,6 +149,21 @@ def test_firebase_configuration_failure_is_not_invalid_login(monkeypatch):
     from service import runtime
     runtime.firebase_app.cache_clear()
     monkeypatch.delenv("FIREBASE_PROJECT_ID", raising=False)
+    try:
+        response = TestClient(app).get("/v1/me", headers={"Authorization": "Bearer sample-token"})
+        assert response.status_code == 503
+    finally:
+        runtime.firebase_app.cache_clear()
+
+
+def test_hosted_credentials_reject_wrong_project(monkeypatch):
+    from service import runtime
+    runtime.firebase_app.cache_clear()
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("FIREBASE_PROJECT_ID", "lost-and-found-9671c")
+    monkeypatch.delenv("FIREBASE_AUTH_EMULATOR_HOST", raising=False)
+    monkeypatch.delenv("FIRESTORE_EMULATOR_HOST", raising=False)
+    monkeypatch.setenv("FIREBASE_ADMIN_CREDENTIALS_JSON", '{"project_id":"wrong-project"}')
     try:
         response = TestClient(app).get("/v1/me", headers={"Authorization": "Bearer sample-token"})
         assert response.status_code == 503

@@ -158,3 +158,6 @@ The screenshot message "Couldn't submit the report. Your draft is saved on this 
 - GET /v1/me with a valid user token: verifies the authenticated account and server-assigned role. A technical admin cannot check in found items; use office_staff.
 
 See docs/submission_recovery.md for phone configuration, safe retry and deployment steps. New probes must be tested before claiming production readiness.
+
+
+For the hosted setup, see [deployment instructions](docs/DEPLOYMENT.md) and the root render.yaml blueprint. The worker requires a continuously running service; approve any hosting charges before provisioning. Credentials must be entered in a secure hosting secret store. No deployment is confirmed by these files alone.

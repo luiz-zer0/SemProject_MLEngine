@@ -2,6 +2,8 @@
 import hashlib
 import json
 import logging
+import time
+from threading import Lock
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Literal
@@ -173,15 +175,26 @@ def health():
     return {"status": "ok", "service": "authenticated_reports", "matching": "separate durable worker"}
 
 
+_readiness_lock = Lock()
+_readiness_cache = {"until": 0.0, "ready": False}
+
+
 @app.get("/ready")
 def ready():
     """Read-only readiness probe; no records or credentials are exposed."""
-    try:
-        # An actual read verifies credentials and Firestore availability, not worker execution.
-        client = db()
-        list(client.collection("matching_jobs").limit(1).stream(timeout=5))
-    except (HTTPException, GoogleAPICallError, GoogleAuthError, RuntimeError, ValueError):
-        log.warning("Report service readiness check failed")
+    # Bound probe frequency so public health requests cannot cause unbounded database reads.
+    with _readiness_lock:
+        if time.monotonic() >= _readiness_cache["until"]:
+            try:
+                client = db()
+                list(client.collection("matching_jobs").limit(1).stream(timeout=5))
+                _readiness_cache["ready"] = True
+            except (HTTPException, GoogleAPICallError, GoogleAuthError, RuntimeError, ValueError):
+                log.warning("Report service readiness check failed")
+                _readiness_cache["ready"] = False
+            _readiness_cache["until"] = time.monotonic() + 30
+        is_ready = _readiness_cache["ready"]
+    if not is_ready:
         return JSONResponse(status_code=503, content={"status": "unavailable", "service": "authenticated_reports", "firestore": "unavailable"})
     return {"status": "ready", "service": "authenticated_reports", "firestore": "reachable"}
 
