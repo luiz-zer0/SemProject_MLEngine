@@ -26,7 +26,7 @@ def split() -> dict:
         result["splits"][name] = {"lost_ids": sorted(ids), "found_ids": sorted(found), "pair_count": sum(p["lost_report_id"] in ids for p in pairs)}
     if set(result["splits"]["development"]["found_ids"]) & set(result["splits"]["test"]["found_ids"]):
         raise ValueError("Found report spans splits")
-    path = ROOT / "data" / "processed" / "campus_split.json"
+    path = ROOT / "data" / "processed" / "logistic_regression_split.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     return result

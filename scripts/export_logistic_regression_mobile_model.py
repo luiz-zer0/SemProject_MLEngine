@@ -6,14 +6,14 @@ from pathlib import Path
 import joblib
 import pandas as pd
 
-from matching_system.feature_builder import FEATURE_NAMES
-from matching_system.ml_model import new_classifier
+from matching_system.logistic_regression_features import FEATURE_NAMES
+from matching_system.logistic_regression_model import new_classifier
 
 
 def main():
     root = Path(__file__).resolve().parents[1]
-    table_path = root / "data/processed/modelling_pairs.csv"
-    split_path = root / "data/processed/campus_split.json"
+    table_path = root / "data/processed/logistic_regression_pairs.csv"
+    split_path = root / "data/processed/logistic_regression_split.json"
     table = pd.read_csv(table_path)
     split = json.loads(split_path.read_text())["splits"]
     train = table[table.lost_report_id.isin(split["development"]["lost_ids"])]

@@ -13,7 +13,7 @@ from sklearn.model_selection import GroupKFold
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from .feature_builder import FEATURE_NAMES
+from .logistic_regression_features import FEATURE_NAMES
 
 
 def new_classifier():

@@ -10,7 +10,7 @@ from matching_system.pipeline import MatchingPipeline
 
 
 ROOT = Path(__file__).resolve().parents[1]
-FIXTURES = ROOT / "data/fixtures/day3/demo_reports.csv"
+FIXTURES = ROOT / "data/fixtures/matching_demo/demo_reports.csv"
 
 
 def main() -> None:

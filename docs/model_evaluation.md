@@ -1,4 +1,9 @@
-# Ranking benchmark handoff (22 November 2026)
+# Model evaluation and ranking benchmark
+
+
+---
+
+## Benchmark results and limitations
 
 The earlier tracked campus files contain 46 synthetic reports and 32 designed pairs. They are not 46 verified physical items or independently checked matches. On 23 November, the user transcribed two Lost and Found Office category tables into the chat. The transcription is preserved in `data/raw/campus/office_inventory_aggregate.csv`: 33 June–July rows total 388 quantities, and 24 August rows total 299 quantities. The combined quantity is 687. The linked Google Docs returned permission denied to the connected account, so this transcription has not been checked against the original files. It contains categories and quantities only. Do not turn those counts into individual found records.
 

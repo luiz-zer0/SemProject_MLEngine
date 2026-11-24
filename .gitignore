@@ -8,8 +8,8 @@ data/raw/delhi/*.csv
 data/processed/cleaned_items.csv
 data/processed/synthetic_delhi_lost_claims.csv
 data/processed/delhi_labelled_pairs.csv
-data/processed/delhi_modelling_pairs.csv
-data/processed/delhi_split.json
+data/processed/delhi_logistic_regression_pairs.csv
+data/processed/delhi_logistic_regression_split.json
 results/delhi_experiment/
 
 artifacts/

@@ -1,6 +1,6 @@
 # Deliverable 3 technical audit and handover
 
-Review date: 24 November 2026. This is a technical review for the team to inspect and correct; it is not a student-authored submission or a claim that the assessment is complete. No cleanup removals were made.
+Review date: 24 November 2026. This is a technical review for the team to inspect and correct; it is not a student-authored submission or a claim that the assessment is complete. Subsequent documentation consolidation changed Markdown paths and names; project data and source were retained.
 
 ## A. Rubric compliance
 
@@ -39,7 +39,7 @@ These are results on AI-authored controlled fiction. The perfect attribute and h
 
 ## C. Repository cleanup
 
-The cleanup review preserved the unique Friday run transcript intact at `results/archive/friday_run.txt`. Source-dependent Delhi outputs and local model data remain in place pending provenance review. A later documentation cleanup removed six completed or superseded Markdown handoff notes; project source and data were not removed.
+The cleanup review preserved the unique prior demo transcript intact at `results/archive/prior_demo_run.txt`. Source-dependent Delhi outputs and local model data remain in place pending provenance review. A later documentation cleanup removed six completed or superseded Markdown handoff notes; project source and data were not removed.
 
 ## D. Notebook review
 

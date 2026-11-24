@@ -13,7 +13,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics.pairwise import cosine_similarity
 
-from matching_system.feature_builder import FEATURE_NAMES, pair_features
+from matching_system.logistic_regression_features import FEATURE_NAMES, pair_features
 from matching_system.models import Report
 from scripts.validate_ranking_dataset import validate
 

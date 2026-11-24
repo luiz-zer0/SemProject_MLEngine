@@ -7,7 +7,7 @@ from matching_system.nlp_retrieval import TextReport
 from matching_system.pipeline import MatchingPipeline
 
 
-class Day3IntegrationTests(unittest.TestCase):
+class MatchingPipelineIntegrationTests(unittest.TestCase):
     def setUp(self):
         self.client = TestClient(app)
 

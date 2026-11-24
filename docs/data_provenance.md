@@ -1,4 +1,9 @@
-# Dataset sources and boundaries
+# Data provenance and dataset boundaries
+
+
+---
+
+## Dataset sources
 
 ## Current real-data source and constructed-label experiment
 
@@ -6,7 +11,7 @@ The current notebook uses the [Delhi Metro Lost and Found dataset on Kaggle](htt
 
 `scripts/prepare_delhi_data.py` preserves the raw file and all rows, counts exact duplicates (zero) and missing values (8,208 descriptions; 10,511 quantities), collapses whitespace in a generated copy, adds casefolded text, and parses dates and times. It writes `data/processed/cleaned_items.csv` and a non-sensitive audit at `data/processed/delhi_preprocessing_report.json`. The audit also measures distinct source station strings, distinct whitespace-normalized strings, case-folded strings, and collision groups. In the observed source, all 13,713 station values are non-empty; the 229 distinct source strings remain 229 after whitespace cleanup and case-folding, although 44 rows had whitespace changed. There were zero whitespace or case-fold collision groups, so no semantic station alias mapping is applied: nearby or similarly named stations are not proven equivalent by these records. `station_name` is the receiving station recorded by the source; we do not assert it is the exact loss location. No original colour, brand or model columns exist, so these are left absent.
 
-`scripts/create_delhi_experiment.py` uses seed 42. It selects 120 original found rows across ten frequent item names, creates one **fictional lost claim** per selected row, and makes 360 pair labels: 120 positives by construction, 120 assumed same-name negatives, and 120 assumed other-name negatives. Its generated files are `data/processed/synthetic_delhi_lost_claims.csv`, `data/processed/delhi_labelled_pairs.csv`, `data/processed/delhi_modelling_pairs.csv`, and `data/processed/delhi_split.json`. Dates and some locations in fictional claims are invented. Colour remains empty. A different found row is **not proof of a different physical item**, so the negative labels need real review before any field claim. The derived row-level files and model outputs are ignored by Git, just like the raw CSV, because found descriptions can contain personal details.
+`scripts/create_delhi_experiment.py` uses seed 42. It selects 120 original found rows across ten frequent item names, creates one **fictional lost claim** per selected row, and makes 360 pair labels: 120 positives by construction, 120 assumed same-name negatives, and 120 assumed other-name negatives. Its generated files are `data/processed/synthetic_delhi_lost_claims.csv`, `data/processed/delhi_labelled_pairs.csv`, `data/processed/delhi_logistic_regression_pairs.csv`, and `data/processed/delhi_logistic_regression_split.json`. Dates and some locations in fictional claims are invented. Colour remains empty. A different found row is **not proof of a different physical item**, so the negative labels need real review before any field claim. The derived row-level files and model outputs are ignored by Git, just like the raw CSV, because found descriptions can contain personal details.
 
 The current notebook uses this **real found-item source plus synthetic claims and constructed labels**. Its held-out results test only this academic pairing exercise. The four `delhi_*.png` figures contain aggregate EDA counts. The older synthetic campus data and results below are retained as a separate baseline; they are not real reports.
 
@@ -29,6 +34,42 @@ The [Roboflow Lost and Found dataset, version 2](https://universe.roboflow.com/r
 
 ## Splits and leakage
 
-`scripts/split_campus_data.py` uses seed 42 and groups all candidates for one lost report together. The development set has 24 pairs from 10 lost reports; the held-out test has 8 pairs from 4 different lost reports. Found IDs do not cross those partitions. Grouped cross-validation is applied only to development. This reduces repeated-description leakage, but the small synthetic test is still only a prototype check.
+`scripts/split_logistic_regression_data.py` uses seed 42 and groups all candidates for one lost report together. The development set has 24 pairs from 10 lost reports; the held-out test has 8 pairs from 4 different lost reports. Found IDs do not cross those partitions. Grouped cross-validation is applied only to development. This reduces repeated-description leakage, but the small synthetic test is still only a prototype check.
 
 Run `python -m scripts.validate_delhi_experiment` after generating the Delhi experiment files to check that each synthetic lost claim has exactly three candidate pairs (one `constructed_positive` and two `assumed_*` negatives), found IDs are unique, lost and found IDs are covered by only one development/test split, and each manifest pair count matches the pair table. The focused `python -m unittest tests.test_delhi_validator` tests these checks with temporary CSV and JSON fixtures and needs no private Delhi CSV or download. A pass establishes only these structural properties: different source-row IDs may still refer to the same physical item, and the validator cannot verify that an assumed negative is truly negative.
+
+---
+
+## Synthetic campus data audit
+
+46 synthetic reports: 14 lost, 32 found. 32 designed pairs: 14 match,
+8 plausible, 10 non_match. Ledger contains 46 report rows and 32 pair rows; three
+additional synthetic queries cover wording variation, similar items and no match.
+Raw files remain unchanged. No real-campus accuracy is claimed.
+
+Plausible is uncertain, excluded from binary metrics. All labels are synthetic
+design assertions awaiting independent review, including non_match. Proposed
+physical groups are provisional: join the report groups identified by each
+match pair before grouped holdout; unresolved pairs must be adjudicated.
+Missing evidence: real reports, consent, collection provenance, independent
+review, verified ownership/identity, verified negatives and representative coverage.
+
+## Real intake
+
+CSV templates are headers only; JSON arrays are empty. Use CSV field names
+as keys of objects in reports and pairs. Require unique IDs, report_type
+lost/found, nonempty description, ISO 8601 dates with offset and source reference.
+Pair references must resolve to a lost and a found report. Labels are match,
+non_match or uncertain. Verified labels require reviewer, review timestamp,
+verification method and evidence reference; pending records stay uncertain.
+Keep private IDs and contact details out of model text; use protected evidence
+references. Obtain consent before using real reports. Never fabricate evidence.
+
+Legacy loader mapping: report_id, report_type and description map directly;
+item_name maps to category as temporary legacy fallback only. Free-text location
+is not a validated location_id; reported_at is not verified event_date.
+Fit only on found inventory and rebuild on changes, as described in [the system guide](system_guide.md).
+Evaluate ranking separately; use reviewed physical-item groups for holdout.
+Synthetic fixtures cannot establish real-campus matching accuracy.
+
+Initial audit checks: ledger coverage 78 rows; uncertain mapping 8; 46 unique report IDs; pair references resolve; three query rows; JSON parses. These checks validate structure, not the truth of the designed labels.

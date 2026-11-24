@@ -4,7 +4,7 @@
 
 The transcribed Office inventory category quantities are in `data/raw/campus/office_inventory_aggregate.csv` (388 June–July plus 299 August quantities). The linked original Google Docs were inaccessible to the connected account; the transcription still needs source verification. These aggregate counts are not individual reports. A separate AI-authored, controlled fictional exercise lives under `data/fixtures/ranking/`, with its generated four-table dataset under `data/processed/ranking/`. Independent student review of the examples and labels is pending.
 
-The remaining Deliverable 3 verification items are recorded in [the current technical audit](docs/deliverable3_audit.md).
+The remaining Deliverable 3 verification items are recorded in [the current technical audit](docs/deliverable3_audit.md). See the [documentation index](docs/README.md) for the project guides.
 
 From the repository root, after installing `requirements.txt`:
 
@@ -13,12 +13,12 @@ python -m scripts.prepare_ranking_benchmark
 python -m scripts.validate_ranking_dataset data/processed/ranking
 python -m scripts.evaluate_ranking_benchmark
 python -m unittest tests.test_ranking_benchmark tests.test_ranking_dataset_validator -v
-python -m scripts.execute_nlp_notebook_inprocess
+python -m scripts.execute_tfidf_notebook_inprocess
 ```
 
 The notebook runner rebuilds its controlled-fiction tables and benchmark under a temporary directory, then saves executed cell outputs to `notebooks/TFIDF_Final.ipynb`. It does not launch a Jupyter kernel; run it in Jupyter as a separate final environment check when kernel execution is available.
 
-The evaluator fits TF-IDF and Logistic Regression on training groups, selects the hybrid weight on validation groups, and reports held-out Top-1, Recall@5, MRR and no-match false suggestions for five methods against the same 24-item pool. Its result file is `results/ranking_benchmark.json`. All outcomes are for constructed fiction and must not be described as real Strathmore matching accuracy. The final notebook is `notebooks/TFIDF_Final.ipynb`, named for its primary text-retrieval method. The team must review and approve its content. See `docs/ranking_dataset_handoff.md` for data limits and remaining integration work.
+The evaluator fits TF-IDF and Logistic Regression on training groups, selects the hybrid weight on validation groups, and reports held-out Top-1, Recall@5, MRR and no-match false suggestions for five methods against the same 24-item pool. Its result file is `results/ranking_benchmark.json`. All outcomes are for constructed fiction and must not be described as real Strathmore matching accuracy. The final notebook is `notebooks/TFIDF_Final.ipynb`, named for its primary text-retrieval method. The team must review and approve its content. See `docs/model_evaluation.md` for data limits and remaining integration work.
 
 This repository now has two distinct parts: a **text-first matching prototype** under development and the retained **Logistic Regression coursework experiment**. The prototype ranks found reports for staff to review; it does not decide ownership or authorize handover.
 
@@ -40,25 +40,25 @@ NLP retrieves candidates from item names and descriptions. The matching agent co
 | Data for development | 46 synthetic campus reports, 32 designed pairs and three additional synthetic queries. No verified real lost/found pairs are available here. |
 | Real-case evaluation | Pending permitted reports and independently reviewed same-item links. No campus matching accuracy is claimed. |
 | Deliverable 3 mobile demonstration | Pending evidence. The companion Android app is maintained in a separate repository; the current checkout does not contain Android sources, and a current Android-to-service walkthrough has not been verified here. |
-| Deliverable 3 final notebook | `notebooks/TFIDF_Final.ipynb` documents the NLP approach, including TF-IDF and knowledge agents. Its ranking evaluation data is controlled fiction; clean-kernel execution and independent team review remain required. `notebooks/LogisticRegression_Base.ipynb` is the separate baseline/coursework experiment. |
+| Deliverable 3 final notebook | `notebooks/TFIDF_Final.ipynb` documents the NLP approach, including TF-IDF and knowledge agents. Its ranking evaluation data is controlled fiction; clean-kernel execution and independent team review remain required. `notebooks/LogisticRegression_Baseline.ipynb` is the separate baseline/coursework experiment. |
 
 The currently reviewed facts are limited to the fields on `TextReport`. Category disagreement is **review evidence**, not an automatic exclusion; different locations can still describe the same item. Missing facts are unknown. The rules are explicit constants with stable IDs; a separately managed knowledge-base file remains future work. The local ranker-to-agents-to-API path is integrated.
 
 ## Run the prototype
 
-Use Python 3.11 or newer. From the repository root:
+Use Python 3.12. From the repository root:
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py" -v
-.\.venv\Scripts\python.exe -m scripts.demo_day3
-.\.venv\Scripts\python.exe -m uvicorn matching_system.api:app --host 127.0.0.1 --port 8000
+py -3.12 -m venv .venv-service
+.\.venv-service\Scripts\python.exe -m pip install -r requirements-service.lock.txt
+.\.venv-service\Scripts\python.exe -m pytest tests -q
+.\.venv-service\Scripts\python.exe -m scripts.demo_matching_pipeline
+.\.venv-service\Scripts\python.exe -m uvicorn matching_system.api:app --host 127.0.0.1 --port 8000
 ```
 
-On macOS or Linux, activate `.venv` and use `python` in place of the Windows executable. The retrieval component needs `scikit-learn`, already listed in `requirements.txt`.
+The Firebase emulator integration test is skipped unless explicitly enabled; see [Firebase setup](FIREBASE_SETUP.md) to run it safely against local emulators. On macOS or Linux, create the virtual environment with `python3.12 -m venv .venv-service` and use `.venv-service/bin/python` in place of the Windows executable.
 
-The local API serves a synthetic found-item inventory from `data/fixtures/day3/demo_reports.csv`. Open `http://127.0.0.1:8000/docs` and try `POST /preview/matches` with:
+The local API serves a synthetic found-item inventory from `data/fixtures/matching_demo/demo_reports.csv`. Open `http://127.0.0.1:8000/docs` and try `POST /preview/matches` with:
 
 ```json
 {
@@ -86,7 +86,7 @@ Each candidate includes a plain-language `explanation` alongside the structured 
 }
 ```
 
-The explanation uses only fixed fact labels and evidence states; it does not repeat report text or field values. It states the next staff action and clarifies that similarity is not a probability and that ownership/release are not determined. `GET /health` confirms synthetic-preview mode. Requests are not saved; private ID fields are rejected and validation errors do not echo rejected values. Real intake still requires authorized access, human privacy review, and removal/minimization of personal information. An empty result means no lexical candidate in this fixture inventory, not proof that the item does not exist. The [Day 3 pipeline](matching_system/pipeline.py) composes the ranker and both agents; the [Friday knowledge-agent/API handoff](docs/friday_knowledge_agents_api_handoff.md) documents exact facts, rules, traces, API schemas and privacy limits. The [demo notes](docs/day3_demo.md) record inspected cases and limits.
+The explanation uses only fixed fact labels and evidence states; it does not repeat report text or field values. It states the next staff action and clarifies that similarity is not a probability and that ownership/release are not determined. `GET /health` confirms synthetic-preview mode. Requests are not saved; private ID fields are rejected and validation errors do not echo rejected values. Real intake still requires authorized access, human privacy review, and removal/minimization of personal information. An empty result means no lexical candidate in this fixture inventory, not proof that the item does not exist. The [Matching pipeline](matching_system/pipeline.py) composes the ranker and both agents; the [System guide](docs/system_guide.md) documents exact facts, rules, traces, API schemas and privacy limits. The [demo guide](docs/demo_guide.md) records inspected cases and limits.
 
 The modules can be composed without a server:
 
@@ -104,15 +104,15 @@ if ranked:
     print(assessment.to_dict(), workflow.to_dict())
 ```
 
-`load_text_reports_csv(path, columns=...)` maps future CSV columns explicitly into `TextReport`. It copies only selected general-item fields and rejects private ID-number fields in the mapping. The TF-IDF index is fitted on found-report text; call `replace_inventory(found_reports)` when the inventory changes. `rank(..., min_similarity=...)` can apply a lexical cutoff, but that value is not a calibrated match threshold. The [NLP handoff](docs/nlp_day1_handoff.md) defines the module boundary for integration.
+`load_text_reports_csv(path, columns=...)` maps future CSV columns explicitly into `TextReport`. It copies only selected general-item fields and rejects private ID-number fields in the mapping. The TF-IDF index is fitted on found-report text; call `replace_inventory(found_reports)` when the inventory changes. `rank(..., min_similarity=...)` can apply a lexical cutoff, but that value is not a calibrated match threshold. The [System guide](docs/system_guide.md) defines the module boundary for integration.
 
-For the exact text preparation, TF-IDF settings, rebuild command and failure cases, see the [Day 4 NLP handoff](docs/day4_nlp_handoff.md).
+For text preparation, TF-IDF settings, rebuild commands and failure cases, see the [System guide](docs/system_guide.md).
 
 ## Data and evaluation
 
-The tracked campus reports and pair labels are **synthetic**. The [Day 1 audit](docs/day1_data_audit.md) and [fixture ledger](data/fixtures/day1/fixture_ledger.csv) record provenance and pending review. In the new prototype, `plausible` is treated as **uncertain**, not a verified non-match. The three [extra queries](data/fixtures/day1/synthetic_queries.csv) check wording variation, a similar item and an absent counterpart. They are engineering fixtures, not real-campus evidence.
+The tracked campus reports and pair labels are **synthetic**. The [Campus data audit](docs/data_provenance.md) and [fixture ledger](data/fixtures/campus_synthetic/fixture_ledger.csv) record provenance and pending review. In the new prototype, `plausible` is treated as **uncertain**, not a verified non-match. The three [extra queries](data/fixtures/campus_synthetic/synthetic_queries.csv) check wording variation, a similar item and an absent counterpart. They are engineering fixtures, not real-campus evidence.
 
-The [real report template](data/templates/day1/real_reports.csv), [verified pair template](data/templates/day1/verified_pairs.csv) and [JSON intake template](data/templates/day1/intake.json) are empty by design. When permitted data arrives:
+The [real report template](data/templates/intake/real_reports.csv), [verified pair template](data/templates/intake/verified_pairs.csv) and [JSON intake template](data/templates/intake/intake.json) are empty by design. When permitted data arrives:
 
 1. Record its source, access basis and reviewers; remove unnecessary personal details from model text.
 2. Map report fields into the general-item contract and validate unique IDs and pair references.
@@ -123,11 +123,11 @@ A found-only dataset or fictional lost claims can exercise ingestion but cannot 
 
 ## Earlier CAT 2 classification experiment
 
-The [coursework notebook](notebooks/LogisticRegression_Base.ipynb) remains available as the assessed Logistic Regression baseline. It is not part of the current API pipeline or the planned Deliverable 3 demo. It uses 13,713 Delhi Metro **found-item** records for cleaning and exploratory analysis, then creates 120 fictional lost claims and 360 constructed pairs for an offline classification exercise. Its held-out precision 0.971, recall 0.944 and F1 0.958 describe those constructed labels only. The Delhi source has no verified lost/found links or handovers, and different source rows are not proof of different physical items.
+The [coursework notebook](notebooks/LogisticRegression_Baseline.ipynb) remains available as the assessed Logistic Regression baseline. It is not part of the current API pipeline or the planned Deliverable 3 demo. It uses 13,713 Delhi Metro **found-item** records for cleaning and exploratory analysis, then creates 120 fictional lost claims and 360 constructed pairs for an offline classification exercise. Its held-out precision 0.971, recall 0.944 and F1 0.958 describe those constructed labels only. The Delhi source has no verified lost/found links or handovers, and different source rows are not proof of different physical items.
 
 The older campus classifier uses 32 designed pairs and historically maps `plausible` to class 0, with an exclusion sensitivity check. That assumption belongs to the coursework experiment; the NLP prototype keeps uncertain cases separate. Neither experiment measures performance on verified campus incidents.
 
-To reproduce the Delhi notebook, obtain the raw CSV as described in [dataset sources](docs/dataset_sources.md), place it at `data/raw/delhi/delhi_lost_and_found.csv`, verify its documented hash, run `python -m scripts.create_delhi_experiment`, then run all cells in the notebook. The raw Delhi CSV and row-level derivatives are Git-ignored because descriptions may contain personal information. The historical synthetic campus model can be run with `python -m scripts.run_model`.
+To reproduce the Delhi notebook, obtain the raw CSV as described in [data provenance](docs/data_provenance.md), place it at `data/raw/delhi/delhi_lost_and_found.csv`, verify its documented hash, run `python -m scripts.create_delhi_experiment`, then run all cells in the notebook. The raw Delhi CSV and row-level derivatives are Git-ignored because descriptions may contain personal information. The historical synthetic campus model can be run with `python -m scripts.run_logistic_regression_experiment`.
 
 ## Next integration steps
 
