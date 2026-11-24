@@ -16,9 +16,9 @@ python -m unittest tests.test_ranking_benchmark tests.test_ranking_dataset_valid
 python -m scripts.execute_nlp_notebook_inprocess
 ```
 
-The notebook runner rebuilds its controlled-fiction tables and benchmark under a temporary directory, then saves executed cell outputs to `notebooks/NLP_Final.ipynb`. It does not launch a Jupyter kernel; run it in Jupyter as a separate final environment check when kernel execution is available.
+The notebook runner rebuilds its controlled-fiction tables and benchmark under a temporary directory, then saves executed cell outputs to `notebooks/TFIDF_Final.ipynb`. It does not launch a Jupyter kernel; run it in Jupyter as a separate final environment check when kernel execution is available.
 
-The evaluator fits TF-IDF and Logistic Regression on training groups, selects the hybrid weight on validation groups, and reports held-out Top-1, Recall@5, MRR and no-match false suggestions for five methods against the same 24-item pool. Its result file is `results/ranking_benchmark.json`. All outcomes are for constructed fiction and must not be described as real Strathmore matching accuracy. The final NLP notebook is `notebooks/NLP_Final.ipynb`; TF-IDF is the method it demonstrates. The team must review and approve its content. See `docs/ranking_dataset_handoff.md` for data limits and remaining integration work.
+The evaluator fits TF-IDF and Logistic Regression on training groups, selects the hybrid weight on validation groups, and reports held-out Top-1, Recall@5, MRR and no-match false suggestions for five methods against the same 24-item pool. Its result file is `results/ranking_benchmark.json`. All outcomes are for constructed fiction and must not be described as real Strathmore matching accuracy. The final notebook is `notebooks/TFIDF_Final.ipynb`, named for its primary text-retrieval method. The team must review and approve its content. See `docs/ranking_dataset_handoff.md` for data limits and remaining integration work.
 
 This repository now has two distinct parts: a **text-first matching prototype** under development and the retained **Logistic Regression coursework experiment**. The prototype ranks found reports for staff to review; it does not decide ownership or authorize handover.
 
@@ -40,7 +40,7 @@ NLP retrieves candidates from item names and descriptions. The matching agent co
 | Data for development | 46 synthetic campus reports, 32 designed pairs and three additional synthetic queries. No verified real lost/found pairs are available here. |
 | Real-case evaluation | Pending permitted reports and independently reviewed same-item links. No campus matching accuracy is claimed. |
 | Deliverable 3 mobile demonstration | Pending evidence. The companion Android app is maintained in a separate repository; the current checkout does not contain Android sources, and a current Android-to-service walkthrough has not been verified here. |
-| Deliverable 3 final notebook | `notebooks/NLP_Final.ipynb` documents the NLP approach, including TF-IDF and knowledge agents. Its ranking evaluation data is controlled fiction; clean-kernel execution and independent team review remain required. `notebooks/LogisticRegression_Base.ipynb` is the separate baseline/coursework experiment. |
+| Deliverable 3 final notebook | `notebooks/TFIDF_Final.ipynb` documents the NLP approach, including TF-IDF and knowledge agents. Its ranking evaluation data is controlled fiction; clean-kernel execution and independent team review remain required. `notebooks/LogisticRegression_Base.ipynb` is the separate baseline/coursework experiment. |
 
 The currently reviewed facts are limited to the fields on `TextReport`. Category disagreement is **review evidence**, not an automatic exclusion; different locations can still describe the same item. Missing facts are unknown. The rules are explicit constants with stable IDs; a separately managed knowledge-base file remains future work. The local ranker-to-agents-to-API path is integrated.
 
