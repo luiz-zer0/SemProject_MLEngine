@@ -1,58 +1,58 @@
-period,source_row,item_description,quantity,source_type
-2026-06_07,1,Laptop charger,24,office_aggregate_user_transcription
-2026-06_07,2,Empty earbud cases,4,office_aggregate_user_transcription
-2026-06_07,3,Ear pods,5,office_aggregate_user_transcription
-2026-06_07,4,Mouse,20,office_aggregate_user_transcription
-2026-06_07,5,Adapters,20,office_aggregate_user_transcription
-2026-06_07,6,Headphones,5,office_aggregate_user_transcription
-2026-06_07,7,USB cables,32,office_aggregate_user_transcription
-2026-06_07,8,Phone chargers,7,office_aggregate_user_transcription
-2026-06_07,9,Earphones,4,office_aggregate_user_transcription
-2026-06_07,10,Watches,4,office_aggregate_user_transcription
-2026-06_07,11,Assorted calculators,23,office_aggregate_user_transcription
-2026-06_07,12,Assorted Sweaters,20,office_aggregate_user_transcription
-2026-06_07,13,Trousers,2,office_aggregate_user_transcription
-2026-06_07,14,caps,1,office_aggregate_user_transcription
-2026-06_07,15,Half jackets,2,office_aggregate_user_transcription
-2026-06_07,16,Jacket,5,office_aggregate_user_transcription
-2026-06_07,17,Blazer,3,office_aggregate_user_transcription
-2026-06_07,18,Jumpers with hood,2,office_aggregate_user_transcription
-2026-06_07,19,Jumpers without hood,2,office_aggregate_user_transcription
-2026-06_07,20,Leather skirt,1,office_aggregate_user_transcription
-2026-06_07,21,Scarfs,14,office_aggregate_user_transcription
-2026-06_07,22,Trench coat,1,office_aggregate_user_transcription
-2026-06_07,23,Kitenge,2,office_aggregate_user_transcription
-2026-06_07,24,Shawl,3,office_aggregate_user_transcription
-2026-06_07,25,Assorted plastic water bottles,74,office_aggregate_user_transcription
-2026-06_07,26,Metallic Bottles,21,office_aggregate_user_transcription
-2026-06_07,27,Pencil pouches,32,office_aggregate_user_transcription
-2026-06_07,28,Mugs,6,office_aggregate_user_transcription
-2026-06_07,29,Small umbrellas,7,office_aggregate_user_transcription
-2026-06_07,30,Long Umbrella,5,office_aggregate_user_transcription
-2026-06_07,31,Empty Spectacles Cases,18,office_aggregate_user_transcription
-2026-06_07,32,Spectacle Cases with specs,2,office_aggregate_user_transcription
-2026-06_07,33,Specs,17,office_aggregate_user_transcription
-2026-08,1,Laptop charger,12,office_aggregate_user_transcription
-2026-08,2,Mouse,20,office_aggregate_user_transcription
-2026-08,3,Adapters,20,office_aggregate_user_transcription
-2026-08,4,Headphones,5,office_aggregate_user_transcription
-2026-08,5,USB cables,21,office_aggregate_user_transcription
-2026-08,6,Phone chargers,10,office_aggregate_user_transcription
-2026-08,7,Earphones,4,office_aggregate_user_transcription
-2026-08,8,Watches,3,office_aggregate_user_transcription
-2026-08,9,Assorted calculators,7,office_aggregate_user_transcription
-2026-08,10,Assorted Sweaters,16,office_aggregate_user_transcription
-2026-08,11,caps,1,office_aggregate_user_transcription
-2026-08,12,Jacket,5,office_aggregate_user_transcription
-2026-08,13,Jumpers with hood,9,office_aggregate_user_transcription
-2026-08,14,Jumpers without hood,4,office_aggregate_user_transcription
-2026-08,15,T-shirt,1,office_aggregate_user_transcription
-2026-08,16,Scarfs,14,office_aggregate_user_transcription
-2026-08,17,Shawl,6,office_aggregate_user_transcription
-2026-08,18,Assorted plastic water bottles,58,office_aggregate_user_transcription
-2026-08,19,Metallic Bottles,21,office_aggregate_user_transcription
-2026-08,20,Pencil pouches,42,office_aggregate_user_transcription
-2026-08,21,Small umbrella’s,4,office_aggregate_user_transcription
-2026-08,22,Long Umbrella,5,office_aggregate_user_transcription
-2026-08,23,Empty Spectacles Cases,3,office_aggregate_user_transcription
-2026-08,24,Spectacles Cases with specs,8,office_aggregate_user_transcription
+period,source_row,item_description,normalized_item,category,quantity,dispose_to,confirmed_by,source_type
+2026-06_07,1,Laptop charger,Laptop charger,electronics,24,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,2,Empty earbud cases,Empty earbud case,electronics,4,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,3,Ear pods,Ear pod,electronics,5,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,4,Mouse,Mouse,electronics,20,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,5,Adapters,Adapter,electronics,20,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,6,Headphones,Headphone,electronics,5,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,7,USB cables,USB cable,electronics,32,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,8,Phone chargers,Phone charger,electronics,7,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,9,Earphones,Earphone,electronics,4,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,10,Watches,Watch,electronics,4,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,11,Assorted calculators,Calculator,calculators,23,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,12,Assorted Sweaters,Sweater,clothing,20,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,13,Trousers,Trousers,clothing,2,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,14,caps,Cap,clothing,1,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,15,Half jackets,Half jacket,clothing,2,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,16,Jacket,Jacket,clothing,5,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,17,Blazer,Blazer,clothing,3,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,18,Jumpers with hood,Hooded jumper,clothing,2,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,19,Jumpers without hood,Jumper,clothing,2,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,20,Leather skirt,Leather skirt,clothing,1,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,21,Scarfs,Scarf,clothing,14,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,22,Trench coat,Trench coat,clothing,1,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,23,Kitenge,Kitenge garment,clothing,2,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,24,Shawl,Shawl,clothing,3,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,25,Assorted plastic water bottles,Plastic water bottle,other,74,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,26,Metallic Bottles,Metal bottle,other,21,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,27,Pencil pouches,Pencil pouch,other,32,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,28,Mugs,Mug,other,6,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,29,Small umbrellas,Umbrella,other,7,,Not provided,office_aggregate_user_transcription
+2026-06_07,30,Long Umbrella,Long umbrella,other,5,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,31,Empty Spectacles Cases,Empty spectacles case,other,18,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,32,Spectacle Cases with specs,Spectacles case with glasses,other,2,COP,Not provided,office_aggregate_user_transcription
+2026-06_07,33,Specs,Glasses,other,17,COP,Not provided,office_aggregate_user_transcription
+2026-08,1,Laptop charger,Laptop charger,electronics,12,COP,Not provided,office_aggregate_user_transcription
+2026-08,2,Mouse,Mouse,electronics,20,COP,Not provided,office_aggregate_user_transcription
+2026-08,3,Adapters,Adapter,electronics,20,COP,Not provided,office_aggregate_user_transcription
+2026-08,4,Headphones,Headphone,electronics,5,COP,Not provided,office_aggregate_user_transcription
+2026-08,5,USB cables,USB cable,electronics,21,COP,Not provided,office_aggregate_user_transcription
+2026-08,6,Phone chargers,Phone charger,electronics,10,COP,Not provided,office_aggregate_user_transcription
+2026-08,7,Earphones,Earphone,electronics,4,COP,Not provided,office_aggregate_user_transcription
+2026-08,8,Watches,Watch,electronics,3,COP,Not provided,office_aggregate_user_transcription
+2026-08,9,Assorted calculators,Calculator,calculators,7,COP,Not provided,office_aggregate_user_transcription
+2026-08,10,Assorted Sweaters,Sweater,clothing,16,COP,Not provided,office_aggregate_user_transcription
+2026-08,11,caps,Cap,clothing,1,COP,Not provided,office_aggregate_user_transcription
+2026-08,12,Jacket,Jacket,clothing,5,COP,Not provided,office_aggregate_user_transcription
+2026-08,13,Jumpers with hood,Hooded jumper,clothing,9,COP,Not provided,office_aggregate_user_transcription
+2026-08,14,Jumpers without hood,Jumper,clothing,4,COP,Not provided,office_aggregate_user_transcription
+2026-08,15,T-shirt,T-shirt,clothing,1,COP,Not provided,office_aggregate_user_transcription
+2026-08,16,Scarfs,Scarf,clothing,14,COP,Not provided,office_aggregate_user_transcription
+2026-08,17,Shawl,Shawl,clothing,6,COP,Not provided,office_aggregate_user_transcription
+2026-08,18,Assorted plastic water bottles,Plastic water bottle,other,58,COP,Not provided,office_aggregate_user_transcription
+2026-08,19,Metallic Bottles,Metal bottle,other,21,COP,Not provided,office_aggregate_user_transcription
+2026-08,20,Pencil pouches,Pencil pouch,other,42,COP,Not provided,office_aggregate_user_transcription
+2026-08,21,Small umbrella’s,Umbrella,other,4,COP,Not provided,office_aggregate_user_transcription
+2026-08,22,Long Umbrella,Long umbrella,other,5,COP,Not provided,office_aggregate_user_transcription
+2026-08,23,Empty Spectacles Cases,Empty spectacles case,other,3,COP,Not provided,office_aggregate_user_transcription
+2026-08,24,Spectacles Cases with specs,Spectacles case with glasses,other,8,COP,Not provided,office_aggregate_user_transcription
