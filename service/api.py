@@ -310,7 +310,9 @@ def matches(kind: str, report_id: str, user=Depends(identity), client=Depends(db
 @app.get("/v1/matches/{match_id}/candidate")
 def candidate(match_id: str, user=Depends(identity), client=Depends(db)):
     match = client.collection("matches").document(match_id).get()
-    if not match.exists or match.to_dict().get("owner_uid") != user["uid"]:
+    if not match.exists:
+        raise HTTPException(404, "Suggestion unavailable")
+    if match.to_dict().get("owner_uid") != user["uid"]:
         raise HTTPException(403, "Only the lost-report owner may view this candidate")
     found = client.collection("found_reports").document(match.to_dict()["found_id"]).get()
     if not found.exists:
@@ -342,11 +344,15 @@ def claim(match_id: str, body: ClaimInput, user=Depends(identity), client=Depend
     @firestore.transactional
     def save(transaction):
         match = client.collection("matches").document(match_id).get(transaction=transaction)
-        if not match.exists or match.to_dict()["owner_uid"] != user["uid"]:
+        if not match.exists:
+            raise HTTPException(404, "Suggestion unavailable")
+        if match.to_dict()["owner_uid"] != user["uid"]:
             raise HTTPException(403, "Only the lost-report owner may claim this suggestion")
         data = match.to_dict()
         found = client.collection("found_reports").document(data["found_id"]).get(transaction=transaction)
         lost = client.collection("lost_reports").document(data["lost_id"]).get(transaction=transaction)
+        if not found.exists or not lost.exists:
+            raise HTTPException(404, "Candidate reports are no longer available")
         existing = ref.get(transaction=transaction)
         if existing.exists:
             return existing.to_dict()

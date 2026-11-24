@@ -19,7 +19,9 @@ def read(name):
 
 class RealisticRankingFixtureTests(unittest.TestCase):
     def test_frozen_test_source_and_group_separation(self):
-        self.assertEqual(hashlib.sha256(TEST_SOURCE.read_bytes()).hexdigest(), FROZEN_TEST_SHA256)
+        # Git checkouts may convert the fixture's LF line endings on Windows.
+        frozen_source = TEST_SOURCE.read_bytes().replace(b"\r\n", b"\n")
+        self.assertEqual(hashlib.sha256(frozen_source).hexdigest(), FROZEN_TEST_SHA256)
         found = read("found_reports.csv")
         groups = {split: {r["item_group_id"] for r in found if r["split"] == split}
                   for split in ("train", "validation", "test")}

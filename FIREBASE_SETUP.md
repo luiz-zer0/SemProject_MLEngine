@@ -140,9 +140,11 @@ node rules.test.mjs
 6. Verify cloud sign-in/email delivery, Storage access, FCM notification permission/delivery,
    API/worker restart recovery and Android runtime behavior before using real reports.
 
-The Dockerfile packages the API. Deploy the worker using the same
-image with command `python -m service.worker`. The container recipe is provided but has not been
-built locally; local validation uses the Python environment and Firebase emulators.
+The Dockerfile packages the API. Build it from the repository root; it does not copy the offline
+`mobile_model.joblib` artifact because the operational worker uses the TF-IDF pipeline. Deploy
+the worker using the same image with command `python -m service.worker`. The container recipe
+has not yet been built in this environment; local validation uses the Python environment and
+Firebase emulators.
 
 The code is a working integration baseline, not a finished production operations setup:
 add deployment monitoring, rate limiting, pagination, retention/deletion policy and independently
