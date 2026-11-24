@@ -37,14 +37,14 @@ def main():
     for s in ['development','test','all']:
         q = [q for q in queries if (s=='all' or q['split']==s) and q['relevant']]
         metrics[s] = dict(query_count=len(q),recall_at_5=sum(x['recall_at_5'] for x in q)/len(q) if q else None,mrr_at_5=sum(x['reciprocal_rank'] for x in q)/len(q) if q else None)
-    extra = read('data/fixtures/day1/synthetic_queries.csv')
+    extra = read('data/fixtures/campus_synthetic/synthetic_queries.csv')
     no_match = []
     for q in extra:
         if q['label'] != 'no_match_in_fixture': continue
         ranked = ranker.rank(TextReport(q['query_id'],'lost',q['description']),limit=5)
         no_match.append(dict(query_id=q['query_id'],returned_count=len(ranked),ranking=ranked))
     out = dict(evidence='SYNTHETIC ONLY; not campus accuracy',inventory_count=len(found),report_count=len(reports),pair_count=len(pairs),excluded_uncertain_pairs=sum(p['label'] in ['plausible','uncertain'] for p in pairs),binary_metrics='not calculated; uncertain excluded; design labels are not verified',metrics=metrics,no_match=dict(query_count=len(no_match),empty_result_count=sum(not x['ranking'] for x in no_match),queries=no_match),queries=queries,source_sha256={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['data/raw/campus/synthetic_campus_reports.csv','data/raw/campus/labelled_campus_pairs.csv']})
-    dest = ROOT/'results/day2_synthetic_evaluation.json'
+    dest = ROOT/'results/legacy_synthetic_evaluation.json'
     dest.write_text(json.dumps(out,indent=2),encoding='utf-8')
     print(json.dumps({k:out[k] for k in ['evidence','metrics','no_match','excluded_uncertain_pairs']},indent=2))
 if __name__ == '__main__': main()

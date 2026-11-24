@@ -8,7 +8,7 @@ from pathlib import Path
 from matching_system.nlp_retrieval import TfidfRanker, load_text_reports_csv
 
 
-DEFAULT_FIXTURE = Path(__file__).resolve().parents[1] / "data/fixtures/day3/demo_reports.csv"
+DEFAULT_FIXTURE = Path(__file__).resolve().parents[1] / "data/fixtures/matching_demo/demo_reports.csv"
 
 
 def main() -> None:

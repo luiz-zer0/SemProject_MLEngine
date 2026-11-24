@@ -6,7 +6,7 @@ from pathlib import Path
 import nbformat
 
 ROOT = Path(__file__).resolve().parents[1]
-NOTEBOOK = ROOT / "notebooks" / "NLP_Final.ipynb"
+NOTEBOOK = ROOT / "notebooks" / "TFIDF_Final.ipynb"
 
 
 def main():

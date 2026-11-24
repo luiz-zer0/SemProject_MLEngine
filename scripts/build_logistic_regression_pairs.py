@@ -5,11 +5,11 @@ from collections import Counter
 from pathlib import Path
 
 from matching_system.data_loader import load_labelled_pairs, load_reports
-from matching_system.feature_builder import FEATURE_NAMES, pair_features
+from matching_system.logistic_regression_features import FEATURE_NAMES, pair_features
 from scripts.prepare_campus_data import ROOT, prepare
 
 LABEL_TO_TARGET = {"match": 1, "plausible": 0, "non_match": 0}
-OUTPUT = ROOT / "data" / "processed" / "modelling_pairs.csv"
+OUTPUT = ROOT / "data" / "processed" / "logistic_regression_pairs.csv"
 
 
 def build(output: Path = OUTPUT) -> dict:

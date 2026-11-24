@@ -1,6 +1,11 @@
-# Day 3 local demo and error review
+# Matching demo guide
 
-Run `python -m scripts.demo_day3` from the repository root. For the HTTP walkthrough, run `python -m uvicorn matching_system.api:app --host 127.0.0.1 --port 8000` and use `POST /preview/matches` in `/docs` with the README example. All demo reports in `data/fixtures/day3/demo_reports.csv` are invented engineering fixtures.
+
+---
+
+## Local matching demo
+
+Run `python -m scripts.demo_matching_pipeline` from the repository root. For the HTTP walkthrough, run `python -m uvicorn matching_system.api:app --host 127.0.0.1 --port 8000` and use `POST /preview/matches` in `/docs` with the README example. All demo reports in `data/fixtures/matching_demo/demo_reports.csv` are invented engineering fixtures.
 
 Observed on the fixed fixture inventory:
 

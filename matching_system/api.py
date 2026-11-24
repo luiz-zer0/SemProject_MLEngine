@@ -15,7 +15,7 @@ from matching_system.nlp_retrieval import TextReport, load_text_reports_csv
 from matching_system.pipeline import MatchingPipeline
 
 
-FIXTURE_PATH = Path(__file__).resolve().parents[1] / "data/fixtures/day3/demo_reports.csv"
+FIXTURE_PATH = Path(__file__).resolve().parents[1] / "data/fixtures/matching_demo/demo_reports.csv"
 _reports = load_text_reports_csv(FIXTURE_PATH)
 pipeline = MatchingPipeline([report for report in _reports if report.report_type == "found"])
 

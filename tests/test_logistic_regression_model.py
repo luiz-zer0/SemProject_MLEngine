@@ -6,10 +6,10 @@ from dataclasses import replace
 from pathlib import Path
 
 from matching_system.data_loader import load_reports
-from matching_system.feature_builder import FEATURE_NAMES, pair_features
-from matching_system.ml_model import run_experiment
-from scripts.build_modelling_pairs import ROOT, build
-from scripts.split_campus_data import split
+from matching_system.logistic_regression_features import FEATURE_NAMES, pair_features
+from matching_system.logistic_regression_model import run_experiment
+from scripts.build_logistic_regression_pairs import ROOT, build
+from scripts.split_logistic_regression_data import split
 from scripts.prepare_delhi_data import prepare
 
 
@@ -55,7 +55,7 @@ class ModelTests(unittest.TestCase):
         self.assertEqual((features["brand_match"], features["brand_conflict"]), (0, 0))
         self.assertEqual(set(features), set(FEATURE_NAMES))
 
-    def test_modelling_pairs_keep_original_labels_and_binary_mapping(self):
+    def test_logistic_regression_pairs_keep_original_labels_and_binary_mapping(self):
         with tempfile.TemporaryDirectory(dir=ROOT) as directory:
             path = Path(directory) / "pairs.csv"
             result = build(path)
@@ -71,8 +71,8 @@ class ModelTests(unittest.TestCase):
         build()
         split()
         with tempfile.TemporaryDirectory(dir=ROOT) as directory:
-            result = run_experiment(ROOT / "data/processed/modelling_pairs.csv",
-                                    ROOT / "data/processed/campus_split.json", Path(directory))
+            result = run_experiment(ROOT / "data/processed/logistic_regression_pairs.csv",
+                                    ROOT / "data/processed/logistic_regression_split.json", Path(directory))
             saved = json.loads((Path(directory) / "validation_metrics.json").read_text(encoding="utf-8"))
             self.assertEqual(saved["held_out_test"], result["held_out_test"])
         self.assertEqual(result["split"]["development_pairs"] + result["split"]["test_pairs"], 32)

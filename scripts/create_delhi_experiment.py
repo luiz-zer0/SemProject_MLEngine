@@ -10,7 +10,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from matching_system.feature_builder import FEATURE_NAMES, pair_features
+from matching_system.logistic_regression_features import FEATURE_NAMES, pair_features
 from matching_system.models import Report
 from scripts.prepare_delhi_data import OUTPUT as CLEANED, ROOT, prepare
 
@@ -18,8 +18,8 @@ from scripts.prepare_delhi_data import OUTPUT as CLEANED, ROOT, prepare
 SEED = 42
 CLAIMS = ROOT / "data/processed/synthetic_delhi_lost_claims.csv"
 PAIRS = ROOT / "data/processed/delhi_labelled_pairs.csv"
-FEATURES = ROOT / "data/processed/delhi_modelling_pairs.csv"
-SPLIT = ROOT / "data/processed/delhi_split.json"
+FEATURES = ROOT / "data/processed/delhi_logistic_regression_pairs.csv"
+SPLIT = ROOT / "data/processed/delhi_logistic_regression_split.json"
 
 
 def write_csv(path: Path, fields: list[str], rows: list[dict]) -> None:

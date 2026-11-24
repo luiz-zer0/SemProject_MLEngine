@@ -6,7 +6,7 @@ from pathlib import Path
 import joblib
 import pandas as pd
 
-from matching_system.feature_builder import FEATURE_NAMES, pair_features
+from matching_system.logistic_regression_features import FEATURE_NAMES, pair_features
 from matching_system.models import Report
 
 
