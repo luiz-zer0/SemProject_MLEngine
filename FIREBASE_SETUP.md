@@ -26,6 +26,7 @@ Run these commands from `SemProject_MLEngine`:
 ```powershell
 py -3.12 -m venv .venv-service
 .\.venv-service\Scripts\python.exe -m pip install -r requirements-service.lock.txt
+.\.venv-service\Scripts\python.exe -m scripts.export_mobile_model
 cd firebase
 npm ci
 cd ..
@@ -122,7 +123,7 @@ node rules.test.mjs
    so it does not require the Google Services Gradle plugin. Never put Admin keys in this file.
 3. Firestore rules were deployed. After a billing upgrade and Storage setup, deploy
    `firebase/storage.rules` using `firebase deploy --only storage --project lost-and-found-9671c`.
-4. Deploy the API and worker with `FIREBASE_PROJECT_ID` and Application Default
+4. Deploy the API and worker with `FIREBASE_PROJECT_ID`, `MODEL_PATH` and Application Default
    Credentials for a dedicated service account. Unset all emulator environment variables and
    set `APP_ENV=production`. Use HTTPS for the API URL in the Android configuration.
 5. Grant office and technical-admin custom claims through trusted administrative tooling. The local seed script

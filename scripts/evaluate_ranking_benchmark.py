@@ -22,8 +22,8 @@ DATA = ROOT / "data" / "processed" / "ranking"
 RESULT = ROOT / "results" / "ranking_benchmark.json"
 
 
-def rows(name, data_dir=DATA):
-    with (data_dir / name).open(encoding="utf-8", newline="") as stream:
+def rows(name):
+    with (DATA / name).open(encoding="utf-8", newline="") as stream:
         return list(csv.DictReader(stream))
 
 
@@ -72,18 +72,15 @@ def ranking_metrics(queries, scores, found_ids):
             "matched_details": matched, "no_match_details": unmatched}
 
 
-def main(data_dir=DATA, result_path=RESULT):
-    """Evaluate a benchmark directory and write results to the requested path."""
-    data_dir = Path(data_dir)
-    result_path = Path(result_path)
-    audit = validate(data_dir)
+def main():
+    audit = validate(DATA)
     if not audit["valid"]:
         raise ValueError(audit["errors"])
-    found = {row["found_id"]: row for row in rows("found_reports.csv", data_dir)}
-    lost = {row["lost_id"]: row for row in rows("lost_reports.csv", data_dir)}
-    labels = rows("match_labels.csv", data_dir)
-    queries = rows("evaluation_queries.csv", data_dir)
-    pools = json.loads((data_dir / "candidate_pools.json").read_text(encoding="utf-8"))
+    found = {row["found_id"]: row for row in rows("found_reports.csv")}
+    lost = {row["lost_id"]: row for row in rows("lost_reports.csv")}
+    labels = rows("match_labels.csv")
+    queries = rows("evaluation_queries.csv")
+    pools = json.loads((DATA / "candidate_pools.json").read_text(encoding="utf-8"))
     if len(pools) != 1 or len({q["candidate_pool_id"] for q in queries}) != 1:
         raise ValueError("This comparison expects one frozen candidate pool")
     found_ids = next(iter(pools.values()))
@@ -138,10 +135,9 @@ def main(data_dir=DATA, result_path=RESULT):
                                     "strong_match_threshold_from_validation": threshold,
                                     "test_no_match_false_suggestions": false_suggestions,
                                     "test_no_match_denominator": test["no_match_queries"]}
-    result_path.parent.mkdir(parents=True, exist_ok=True)
-    result_path.write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
+    RESULT.parent.mkdir(parents=True, exist_ok=True)
+    RESULT.write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({name: info["test"] for name, info in output["methods"].items()}, indent=2))
-    return output
 
 
 if __name__ == "__main__":

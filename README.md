@@ -4,17 +4,15 @@
 
 The transcribed Office inventory category quantities are in `data/raw/campus/office_inventory_aggregate.csv` (388 June–July plus 299 August quantities). The linked original Google Docs were inaccessible to the connected account; the transcription still needs source verification. These aggregate counts are not individual reports. A separate AI-authored, controlled fictional exercise lives under `data/fixtures/ranking/`, with its generated four-table dataset under `data/processed/ranking/`. Independent student review of the examples and labels is pending.
 
-From the repository root, after installing `requirements.txt`:
+From the repository root, after installing `requirements.txt` and `httpx` for the API notebook cell:
 
 ```powershell
 python -m scripts.prepare_ranking_benchmark
 python -m scripts.validate_ranking_dataset data/processed/ranking
 python -m scripts.evaluate_ranking_benchmark
-python -m unittest tests.test_ranking_benchmark tests.test_ranking_dataset_validator -v
-python -m scripts.execute_nlp_notebook_inprocess
+python -m pytest -q tests/test_ranking_benchmark.py tests/test_ranking_dataset_validator.py
+jupyter nbconvert --execute --to notebook --inplace notebooks/NLP_Final.ipynb
 ```
-
-The notebook runner rebuilds its controlled-fiction tables and benchmark under a temporary directory, then saves executed cell outputs to `notebooks/NLP_Final.ipynb`. It does not launch a Jupyter kernel; run it in Jupyter as a separate final environment check when kernel execution is available.
 
 The evaluator fits TF-IDF and Logistic Regression on training groups, selects the hybrid weight on validation groups, and reports held-out Top-1, Recall@5, MRR and no-match false suggestions for five methods against the same 24-item pool. Its result file is `results/ranking_benchmark.json`. All outcomes are for constructed fiction and must not be described as real Strathmore matching accuracy. The assessed notebook is `notebooks/NLP_Final.ipynb`; the team must review and approve its content. See `docs/ranking_dataset_handoff.md` for data limits and remaining integration work.
 
@@ -34,11 +32,11 @@ NLP retrieves candidates from item names and descriptions. The matching agent co
 | Component | Current status |
 | --- | --- |
 | CSV field adapter, text normalization and TF-IDF ranking | Implemented in `matching_system/nlp_retrieval.py`; takes a replaceable found-report inventory. |
-| Matching and staff-workflow agents | Implemented as separately testable Python modules and connected to both a local synthetic API preview and the authenticated service worker. A current Android-to-service walkthrough is not verified by this repository. |
+| Matching and staff-workflow agents | Implemented as separately testable Python modules and connected to a local synthetic API preview; not connected to a mobile app. |
 | Data for development | 46 synthetic campus reports, 32 designed pairs and three additional synthetic queries. No verified real lost/found pairs are available here. |
 | Real-case evaluation | Pending permitted reports and independently reviewed same-item links. No campus matching accuracy is claimed. |
-| Deliverable 3 mobile demonstration | Pending evidence. The companion Android app is maintained in a separate repository; the current checkout does not contain Android sources, and a current Android-to-service walkthrough has not been verified here. |
-| Deliverable 3 final notebook | `notebooks/NLP_Final.ipynb` is the NLP notebook. Its data is controlled fiction; clean-kernel execution and independent team review remain required. `notebooks/LogisticRegression_Base.ipynb` is separate prior coursework. |
+| Deliverable 3 mobile demonstration | Pending. This repository has no Android client; the companion `AI-project/android` is currently a starter screen without API integration. |
+| Deliverable 3 final notebook | Pending. `notebooks/LogisticRegression_Base.ipynb` is the earlier coursework baseline, not the final NLP notebook. |
 
 The currently reviewed facts are limited to the fields on `TextReport`. Category disagreement is **review evidence**, not an automatic exclusion; different locations can still describe the same item. Missing facts are unknown. The rules are explicit constants with stable IDs; a separately managed knowledge-base file remains future work. The local ranker-to-agents-to-API path is integrated.
 
@@ -131,8 +129,8 @@ To reproduce the Delhi notebook, obtain the raw CSV as described in [dataset sou
 
 Review the fixture labels and demo errors, validate the intake contract with permitted real reports and verified pairs, and test the full path before a field pilot. For Deliverable 3, a local mobile client can call the synthetic preview with invented sample inputs; real-report use still requires persistence, authentication and reviewed data handling. Keep every output framed as a possible-match suggestion requiring staff verification. See [team contributions](docs/contributions.md) for the repository history.
 
-The [Deliverable 3 readiness review and dated team plan](docs/deliverable3_readiness.md) covers the required mobile demo and final notebook. The authenticated service worker uses `TfidfMatcher` and the same NLP/knowledge-agent pipeline. The separate `Matcher` classifier adapter remains in `service/inference.py` for legacy use but is not used by the API or worker entry points. CLIP is outside the current text-only engine: there is no evaluated CLIP result or paired image dataset in this repository.
+The [Deliverable 3 readiness review and dated team plan](docs/deliverable3_readiness.md) covers the required mobile demo and final notebook. CLIP is outside the current text-only engine: the companion repository has an unimplemented image-encoder placeholder, no evaluated CLIP result, and no paired image dataset. It is not a dependency for this deliverable.
 
 ## Mobile Firebase integration
 
-See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) for the authenticated API, Firebase emulators, and validation commands. The worker currently uses the shared TF-IDF and knowledge-agent pipeline. The API and worker are not deployed, and the separate Android client still needs a current end-to-end demo against them.
+See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) for the authenticated Android service, Firebase emulators, and validation commands. The service integration still uses the older classifier; it must be switched to this repository's TF-IDF pipeline before the Deliverable 3 demonstration.
