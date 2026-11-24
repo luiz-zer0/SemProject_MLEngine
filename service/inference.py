@@ -1,38 +1,4 @@
-"""Serve the existing feature pipeline; never train on incoming app reports."""
-import json
-from datetime import datetime, timezone
-from pathlib import Path
-
-import joblib
-import pandas as pd
-
-from matching_system.logistic_regression_features import FEATURE_NAMES, pair_features
-from matching_system.models import Report
-
-
-def as_report(row):
-    fields = {key: row.get(key, "") for key in ("description", "brand", "model", "colour", "material")}
-    return Report(
-        report_id=row["id"], report_type=row["report_type"], **fields,
-        category=row["category_id"], location=row["location_id"],
-        distinctive_features=tuple(row.get("distinctive_features", [])),
-        reported_at=datetime.fromisoformat(row["event_date"]).replace(tzinfo=timezone.utc),
-    )
-
-
-class Matcher:
-    def __init__(self, path):
-        # Only load a locally trained, trusted artifact: joblib can execute code.
-        artifact = joblib.load(Path(path))
-        if artifact["features"] != list(FEATURE_NAMES):
-            raise ValueError("Model feature schema mismatch")
-        self.classifier = artifact["classifier"]
-        self.version = artifact["version"]
-
-    def score(self, lost, found):
-        features = pair_features(as_report(lost), as_report(found))
-        table = pd.DataFrame([features], columns=list(FEATURE_NAMES))
-        return float(self.classifier.predict_proba(table)[0, 1])
+"""Operational text retrieval; the historical classifier remains in matching_system and the baseline notebook."""
 
 
 class TfidfMatcher:

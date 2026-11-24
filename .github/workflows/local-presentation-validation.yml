@@ -1,7 +1,10 @@
 name: Local presentation backend smoke test
 on:
   push:
-    branches: [local-presentation-ready]
+    branches: [main, local-repo-cleanup]
+    paths: ["service/**", "matching_system/**", "firebase/**", "scripts/**", "tests/**", "requirements-service.lock.txt", ".github/workflows/local-presentation-validation.yml"]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -41,3 +44,6 @@ jobs:
       - name: Exercise real local API, Firestore and NLP worker
         working-directory: firebase
         run: npx firebase emulators:exec --project demo-strathmore-lost-found --only auth,firestore,storage "cd .. && bash scripts/check_local_presentation.sh"
+      - name: Full model, API, role and Firebase rules regression tests
+        working-directory: firebase
+        run: npx firebase emulators:exec --project demo-strathmore-lost-found --only auth,firestore,storage "python ../scripts/verify_local.py"

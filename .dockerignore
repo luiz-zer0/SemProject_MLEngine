@@ -1,9 +1,0 @@
-*
-!requirements-service.lock.txt
-!matching_system/
-!matching_system/**
-!service/
-!service/**
-!artifacts/
-!artifacts/mobile_model.joblib
-**/__pycache__/
