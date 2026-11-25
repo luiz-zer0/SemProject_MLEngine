@@ -99,7 +99,7 @@ def main():
     counts = Counter(item["split"] for item in cases)
     audit = {"version": "v2", "source_type": "AI-authored controlled fiction, inventory-informed categories",
              "previously_observed_v1_cases_used_for": "training and validation only",
-             "new_held_out_test_file_sha256": hashlib.sha256(new_test_path.read_bytes()).hexdigest(),
+             "new_held_out_test_file_sha256": hashlib.sha256(new_test_path.read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
              "item_groups_by_split": dict(counts), "found_count": len(found), "lost_count": len(lost),
              "positive_labels": len(cases), "negative_labels": len(labels) - len(cases),
              "no_match_queries": sum(q["has_match"] == 0 for q in queries),

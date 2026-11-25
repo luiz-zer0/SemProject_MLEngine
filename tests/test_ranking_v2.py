@@ -22,6 +22,8 @@ class RealisticRankingFixtureTests(unittest.TestCase):
         # Git checkouts may convert the fixture's LF line endings on Windows.
         frozen_source = TEST_SOURCE.read_bytes().replace(b"\r\n", b"\n")
         self.assertEqual(hashlib.sha256(frozen_source).hexdigest(), FROZEN_TEST_SHA256)
+        provenance = json.loads((DATA / "provenance.json").read_text(encoding="utf-8"))
+        self.assertEqual(provenance["new_held_out_test_file_sha256"], FROZEN_TEST_SHA256)
         found = read("found_reports.csv")
         groups = {split: {r["item_group_id"] for r in found if r["split"] == split}
                   for split in ("train", "validation", "test")}

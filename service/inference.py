@@ -1,5 +1,4 @@
 """Serve the existing feature pipeline; never train on incoming app reports."""
-import json
 from datetime import datetime, timezone
 from pathlib import Path
 
