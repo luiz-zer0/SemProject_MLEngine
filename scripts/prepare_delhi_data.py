@@ -23,7 +23,7 @@ def prepare(source: Path = SOURCE, output: Path = OUTPUT, report_path: Path = RE
     if not source.is_file():
         raise FileNotFoundError(
             f"Delhi CSV missing at {source}. Download it from the source linked in "
-            "docs/dataset_sources.md and place it at this local, Git-ignored path."
+            "docs/data_provenance.md and place it at this local, Git-ignored path."
         )
     raw = source.read_bytes()
     with source.open(encoding="utf-8-sig", newline="") as handle:

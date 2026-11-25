@@ -7,7 +7,7 @@ Open the repository root in VS Code and select a Python environment with
 
 The primary submission notebook is [NLP_Final.ipynb](../notebooks/NLP_Final.ipynb).
 It locates the project from either the root or the notebooks directory.
-The earlier [Logistic Regression notebook](../notebooks/LogisticRegression_Base.ipynb)
+The earlier [Logistic Regression notebook](../notebooks/LogisticRegression_Baseline.ipynb)
 is retained for the CAT 2 baseline and comparison; it is not the mobile worker.
 
 ## Reproduce the assessment
@@ -21,7 +21,7 @@ python -m pytest tests -q
 python -m jupyter nbconvert --execute --to notebook --inplace notebooks/NLP_Final.ipynb
 ```
 
-The notebook regenerates the fictional benchmark and its results. The frozen test
+The final notebook retains Nimrod's latest workflow. The optional version 2 scripts regenerate a separate fictional comparison and its results. The frozen test
 fixture is unchanged; its provenance hash normalizes Windows line endings.
 Do not edit the fixture to improve scores. Review the examples and labels as a team.
 

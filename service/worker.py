@@ -64,13 +64,19 @@ def process_job(client, ref, matcher):
             current = ref.get(transaction=transaction).to_dict()
             if not current or current.get("lease") != lease:
                 return
-            for result in results:
-                transaction.set(client.collection("matches").document(result["id"]), result)
-            # One deterministic notification per lost report; no item/identity details in push text.
-            for lost_id, owner in {(result["lost_id"], result["owner_uid"]) for result in results}:
-                transaction.set(client.collection("notifications").document(f"matches_{lost_id}"), {
-                    "owner_uid": owner, "message": "Possible matches are ready for review.",
-                    "report_id": lost_id, "created_at": firestore.SERVER_TIMESTAMP, "push_status": "pending"})
+            # Read every existing pair before writing, so concurrent jobs and retries
+            # do not reset read alerts or create duplicates for the same suggestion.
+            refs = [(result, client.collection("matches").document(result["id"])) for result in results]
+            existing = [(result, match_ref, match_ref.get(transaction=transaction).exists)
+                        for result, match_ref in refs]
+            for result, match_ref, already_suggested in existing:
+                transaction.set(match_ref, result, merge=True)
+                if not already_suggested:
+                    transaction.set(client.collection("notifications").document(f"match_{result['id']}"), {
+                        "owner_uid": result["owner_uid"], "kind": "match",
+                        "message": "A possible match has been found for your lost report.",
+                        "report_id": result["lost_id"], "match_id": result["id"],
+                        "read": False, "created_at": firestore.SERVER_TIMESTAMP, "push_status": "pending"})
             transaction.update(source_ref, {"matching_status": "complete"})
             transaction.update(ref, {"status": "complete", "lease_until": 0})
         finish(client.transaction())
@@ -95,14 +101,22 @@ def main():
     logging.basicConfig(level=logging.INFO)
     matcher = TfidfMatcher()
     client = db()
+    interval = max(3.0, float(os.environ.get("WORKER_POLL_SECONDS", "15" if os.environ.get("APP_ENV") != "emulator" else "3")))
+    backoff = interval
     while True:
-        for status in ("pending", "running"):
-            query = client.collection("matching_jobs").where(filter=firestore.FieldFilter("status", "==", status))
-            for snapshot in query.limit(50).stream():
-                process_job(client, snapshot.reference, matcher)
-        if os.environ.get("APP_ENV") != "emulator":
-            deliver_push(client)
-        time.sleep(3)
+        try:
+            for status in ("pending", "running"):
+                query = client.collection("matching_jobs").where(filter=firestore.FieldFilter("status", "==", status))
+                for snapshot in query.limit(50).stream():
+                    process_job(client, snapshot.reference, matcher)
+            if os.environ.get("APP_ENV") != "emulator":
+                deliver_push(client)
+            backoff = interval
+        except Exception as error:
+            # Back off on temporary database/network outages; leases allow recovery.
+            log.warning("Worker polling failed: %s", type(error).__name__)
+            backoff = min(max(backoff * 2, interval), max(60, interval))
+        time.sleep(backoff)
 
 
 def deliver_push(client):

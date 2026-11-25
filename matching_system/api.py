@@ -6,16 +6,17 @@ import re
 from datetime import date
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from matching_system.nlp_retrieval import TextReport, load_text_reports_csv
 from matching_system.pipeline import MatchingPipeline
+from matching_system.report_relevance import INVALID_DESCRIPTION, is_relevant_description
 
 
-FIXTURE_PATH = Path(__file__).resolve().parents[1] / "data/fixtures/day3/demo_reports.csv"
+FIXTURE_PATH = Path(__file__).resolve().parents[1] / "data/fixtures/matching_demo/demo_reports.csv"
 _reports = load_text_reports_csv(FIXTURE_PATH)
 pipeline = MatchingPipeline([report for report in _reports if report.report_type == "found"])
 
@@ -75,6 +76,8 @@ def health() -> dict[str, str | bool]:
 
 @app.post("/preview/matches")
 def preview_matches(request: PreviewRequest) -> dict[str, object]:
+    if not is_relevant_description(request.description):
+        raise HTTPException(422, INVALID_DESCRIPTION)
     lost = TextReport(
         report_id="preview-query",
         report_type="lost",
@@ -84,4 +87,5 @@ def preview_matches(request: PreviewRequest) -> dict[str, object]:
         location_id=request.location_id,
         event_date=request.event_date,
     )
-    return {"mode": "synthetic_preview", **pipeline.recommend(lost, limit=request.limit)}
+    result = pipeline.recommend(lost, limit=request.limit)
+    return {"mode": "synthetic_preview", **result, "match_count": len(result["matches"])}
