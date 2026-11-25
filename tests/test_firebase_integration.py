@@ -137,3 +137,71 @@ def test_irrelevant_description_and_completed_zero_matches():
     assert completed["matching_outcome"] == "no_matches"
     assert completed["match_count"] == 0
     assert completed["matches"] == []
+
+
+def test_lost_first_found_later_alert_and_live_claim_review():
+    client = TestClient(app)
+    student, office, other, admin = login(), login("office_staff"), login(), login("admin")
+    store = db()
+    keyword = "zxylophone" + uuid4().hex
+    body = {"request_id": str(uuid4()), "report_type": "lost", "item_name": keyword,
+            "description": keyword, "category_id": "electronics",
+            "location_id": "sbs_building", "event_date": "2026-11-01"}
+    def finish(report_id):
+        process_job(store, store.collection("matching_jobs").document(report_id), TfidfMatcher())
+    lost = client.post("/v1/reports", json=body, headers=student)
+    assert lost.status_code == 201, lost.text
+    lost_id = lost.json()["id"]
+    finish(lost_id)
+    path = f"/v1/reports/lost/{lost_id}/matches"
+    assert client.get(path, headers=student).json()["match_count"] == 0
+    assert client.get("/v1/notifications", headers=student).json()["unread_count"] == 0
+    found_body = {**body, "report_type": "found", "request_id": str(uuid4()),
+                  "distinctive_features": ["Private marking in custody"], "custody_location": "Shelf A"}
+    found = client.post("/v1/reports", json=found_body, headers=office)
+    assert found.status_code == 201, found.text
+    found_id = found.json()["id"]
+    finish(found_id)
+    matches = client.get(path, headers=student).json()
+    assert matches["matching_status"] == "complete" and matches["match_count"] == 1
+    match_id = matches["matches"][0]["id"]
+    alert = client.get("/v1/notifications", headers=student).json()
+    assert alert["unread_count"] == 1
+    note = alert["notifications"][0]
+    assert note["match_id"] == match_id and note["report_id"] == lost_id and note["kind"] == "match"
+    read_path = f"/v1/notifications/{note['id']}/read"
+    assert client.post(read_path, headers=other).status_code == 404
+    assert client.post(read_path, headers=student).json()["read"] is True
+    # Re-running an existing pair cannot overwrite an already-read alert.
+    client.post(f"/v1/reports/found/{found_id}/retry", headers=office)
+    finish(found_id)
+    alerts = client.get("/v1/notifications", headers=student).json()
+    assert len(alerts["notifications"]) == 1 and alerts["unread_count"] == 0
+    candidate_path = f"/v1/matches/{match_id}/candidate"
+    candidate = client.get(candidate_path, headers=student).json()["candidate"]
+    assert candidate["claimable"] and "distinctive_features" not in candidate and "description" not in candidate
+    assert client.get(candidate_path, headers=office).status_code == 200
+    assert client.get(candidate_path, headers=admin).status_code == 403
+    proof = "A private marking identifies the item."
+    claim = client.post(f"/v1/matches/{match_id}/claim", headers=student, json={"ownership_details": proof})
+    assert claim.status_code == 201, claim.text
+    queue = client.get("/v1/claims", headers=office).json()["claims"]
+    assert any(c["id"] == match_id and c["status"] == "pending" for c in queue)
+    office_alerts = client.get("/v1/notifications", headers=office).json()["notifications"]
+    assert any(n.get("claim_id") == match_id and n["kind"] == "claim" for n in office_alerts)
+    detail_path = f"/v1/claims/{match_id}"
+    detail = client.get(detail_path, headers=office).json()["claim"]
+    assert detail["ownership_details"] == proof
+    assert detail["found_report"]["distinctive_features"] == ["Private marking in custody"]
+    assert detail["match_evidence"]["explanation"] == matches["matches"][0]["explanation"]
+    assert client.get(detail_path, headers=admin).status_code == 403
+    assert client.get(detail_path, headers=other).status_code == 403
+    student_detail = client.get(detail_path, headers=student).json()["claim"]
+    assert "distinctive_features" not in student_detail["found_report"] and "match_evidence" not in student_detail
+    assert not client.get(candidate_path, headers=student).json()["candidate"]["claimable"]
+    assert client.post(detail_path + "/decision", headers=office, json={"status": "approved"}).status_code == 200
+    assert client.get(detail_path, headers=student).json()["claim"]["status"] == "approved"
+    assert client.post(detail_path + "/decision", headers=office, json={"status": "collected"}).status_code == 200
+    assert client.get(detail_path + "/receipt", headers=student).json()["claim_id"] == match_id
+    assert client.get(detail_path, headers=office).json()["claim"]["found_report"]["status"] == "closed"
+    assert any(n.get("claim_status") == "collected" for n in client.get("/v1/notifications", headers=student).json()["notifications"])
