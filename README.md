@@ -96,3 +96,7 @@ The historical Delhi found-only dataset has 13,713 records; the raw CSV and sens
 See [Firebase setup](FIREBASE_SETUP.md) and [final checks](docs/deliverable3_final_checks.md). Local emulators are temporary and intended only for fictional data. The presentation does not require Render, Cloudflare, Docker or a deployed Firebase project. Git history retains retired deployment experiments; do not deploy them or use production credentials for the presentation. Repository changes do not modify any live Firebase account.
 
 [Team contributions](docs/contributions.md) · [Documentation index](docs/README.md)
+
+## Report relevance and zero-result handling
+
+A conservative rule-based NLP guard rejects clearly off-topic standalone sentences (for example, "I had chicken for lunch") and obvious placeholder input before a new report/job is saved. It deliberately allows uncertain descriptions and items absent from the inventory. It is not a trained semantic classifier and does not guarantee detection of arbitrary irrelevant text. Valid reports with no positive lexical candidates complete normally: the matches endpoint returns `matching_outcome: no_matches`, `match_count: 0` and an empty list. Pending and failed jobs are distinct. Tests cover rejection, correction, completed zero matches and ordinary retrieval. No baseline, TF-IDF score or benchmark was changed.

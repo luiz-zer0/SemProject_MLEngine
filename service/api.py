@@ -16,6 +16,7 @@ from google.cloud import firestore
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .runtime import db, firebase_app, identity, staff
+from matching_system.report_relevance import INVALID_DESCRIPTION, is_relevant_description
 from google.api_core.exceptions import GoogleAPICallError
 from google.auth.exceptions import GoogleAuthError
 from fastapi.responses import JSONResponse
@@ -316,6 +317,9 @@ def create_report(body: ReportInput, user=Depends(identity), client=Depends(db))
         existing_job = job.get(transaction=transaction)
         if existing_job.exists:
             raise HTTPException(409, "This request ID was already used for another report type")
+        # Validate only new reports, preserving exactly-once retry for existing reports.
+        if not is_relevant_description(body.description):
+            raise HTTPException(422, INVALID_DESCRIPTION)
         transaction.set(ref, row)
         transaction.set(job, {"report_id": report_id, "report_type": body.report_type,
                              "status": "pending", "attempts": 0, "lease_until": 0})
@@ -342,8 +346,15 @@ def matches(kind: str, report_id: str, user=Depends(identity), client=Depends(db
     report = report_access(client, kind, report_id, user)
     query = client.collection("matches").where(filter=firestore.FieldFilter(f"{kind}_id", "==", report_id))
     rows = [item.to_dict() for item in query.stream()]
-    return {"matching_status": report["matching_status"],
-            "matches": sorted(rows, key=lambda item: item["score"], reverse=True)[:20]}
+    suggestions = sorted(rows, key=lambda item: item["score"], reverse=True)[:20]
+    status = report["matching_status"]
+    outcome = (
+        ("possible_matches" if suggestions else "no_matches")
+        if status == "complete" else "failed" if status == "failed" else "in_progress"
+    )
+    return {"matching_status": status, "matching_outcome": outcome,
+            "match_count": len(suggestions) if status == "complete" else None,
+            "matches": suggestions}
 
 
 @app.get("/v1/matches/{match_id}/candidate")
