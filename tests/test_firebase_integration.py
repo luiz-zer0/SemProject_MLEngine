@@ -108,3 +108,32 @@ def test_end_to_end_persistence_matching_claims_and_access():
     assert client.get(f"/v1/claims/{match_id}/receipt", headers=stranger).status_code == 403
     assert store.collection("found_reports").document(found_id).get().to_dict()["status"] == "closed"
     assert client.get("/v1/notifications", headers=student).json()["notifications"]
+
+
+def test_irrelevant_description_and_completed_zero_matches():
+    from matching_system.report_relevance import INVALID_DESCRIPTION
+    client = TestClient(app)
+    student = login()
+    body = {"request_id": str(uuid4()), "report_type": "lost", "item_name": "Telescope",
+            "description": "I had chicken for lunch.", "category_id": "electronics",
+            "location_id": "sbs_building", "event_date": "2026-11-01"}
+    before = client.get("/v1/reports", headers=student).json()["reports"]
+    rejected = client.post("/v1/reports", json=body, headers=student)
+    assert rejected.status_code == 422, rejected.text
+    assert rejected.json()["detail"] == INVALID_DESCRIPTION
+    assert client.get("/v1/reports", headers=student).json()["reports"] == before
+    # Correct the rejected request without changing its id; no report/job was saved.
+    body["description"] = "Violet telescope"
+    saved = client.post("/v1/reports", json=body, headers=student)
+    assert saved.status_code == 201, saved.text
+    report_id = saved.json()["id"]
+    endpoint = f"/v1/reports/lost/{report_id}/matches"
+    queued = client.get(endpoint, headers=student).json()
+    assert queued["matching_outcome"] == "in_progress"
+    assert queued["match_count"] is None
+    process_job(db(), db().collection("matching_jobs").document(report_id), TfidfMatcher())
+    completed = client.get(endpoint, headers=student).json()
+    assert completed["matching_status"] == "complete"
+    assert completed["matching_outcome"] == "no_matches"
+    assert completed["match_count"] == 0
+    assert completed["matches"] == []
