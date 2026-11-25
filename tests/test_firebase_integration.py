@@ -177,6 +177,22 @@ def test_lost_first_found_later_alert_and_live_claim_review():
     finish(found_id)
     alerts = client.get("/v1/notifications", headers=student).json()
     assert len(alerts["notifications"]) == 1 and alerts["unread_count"] == 0
+    # A genuinely different check-in generates another unread alert for the same lost report.
+    second = client.post("/v1/reports", json={**found_body, "request_id": str(uuid4())}, headers=office)
+    assert second.status_code == 201, second.text
+    second_id = second.json()["id"]
+    finish(second_id)
+    second_match = f"{lost_id}_{second_id}"
+    alerts = client.get("/v1/notifications", headers=student).json()
+    assert len(alerts["notifications"]) == 2 and alerts["unread_count"] == 1
+    assert any(n.get("match_id") == second_match and not n["read"] for n in alerts["notifications"])
+    assert client.post(f"/v1/matches/{second_match}/claim", headers=student,
+                       json={"ownership_details": "A different marking was expected."}).status_code == 201
+    assert client.post(f"/v1/claims/{second_match}/decision", headers=office,
+                       json={"status": "rejected"}).status_code == 200
+    assert client.get(f"/v1/claims/{second_match}", headers=student).json()["claim"]["status"] == "rejected"
+    assert any(n.get("claim_id") == second_match and n.get("claim_status") == "rejected"
+               for n in client.get("/v1/notifications", headers=student).json()["notifications"])
     candidate_path = f"/v1/matches/{match_id}/candidate"
     candidate = client.get(candidate_path, headers=student).json()["candidate"]
     assert candidate["claimable"] and "distinctive_features" not in candidate and "description" not in candidate
