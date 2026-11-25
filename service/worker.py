@@ -61,13 +61,19 @@ def process_job(client, ref, matcher):
             current = ref.get(transaction=transaction).to_dict()
             if current.get("lease") != lease:
                 return
-            for result in results:
-                transaction.set(client.collection("matches").document(result["id"]), result)
-            # One deterministic notification per lost report; no item/identity details in push text.
-            for lost_id, owner in {(result["lost_id"], result["owner_uid"]) for result in results}:
-                transaction.set(client.collection("notifications").document(f"matches_{lost_id}"), {
-                    "owner_uid": owner, "message": "Possible matches are ready for review.",
-                    "report_id": lost_id, "created_at": firestore.SERVER_TIMESTAMP, "push_status": "pending"})
+            # Read every existing pair before writing, so concurrent jobs and retries
+            # do not reset read alerts or create duplicates for the same suggestion.
+            refs = [(result, client.collection("matches").document(result["id"])) for result in results]
+            existing = [(result, match_ref, match_ref.get(transaction=transaction).exists)
+                        for result, match_ref in refs]
+            for result, match_ref, already_suggested in existing:
+                transaction.set(match_ref, result, merge=True)
+                if not already_suggested:
+                    transaction.set(client.collection("notifications").document(f"match_{result['id']}"), {
+                        "owner_uid": result["owner_uid"], "kind": "match",
+                        "message": "A possible match has been found for your lost report.",
+                        "report_id": result["lost_id"], "match_id": result["id"],
+                        "read": False, "created_at": firestore.SERVER_TIMESTAMP, "push_status": "pending"})
             transaction.update(source_ref, {"matching_status": "complete"})
             transaction.update(ref, {"status": "complete", "lease_until": 0})
         finish(client.transaction())
